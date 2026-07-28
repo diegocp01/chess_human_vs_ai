@@ -10,13 +10,21 @@ const VOXEL_DETAIL_SCALE = 4;
 const VOXEL_STEP = BASE_VOXEL_STEP / VOXEL_DETAIL_SCALE;
 const VOXEL_SIZE = VOXEL_STEP * 0.89;
 
-const LIGHT_SQUARE = 0xf0d9b5;
-const DARK_SQUARE = 0xb58863;
-const SELECTED_SQUARE = 0xe5b95f;
-const LEGAL_SQUARE = 0xd6b36d;
-const CAPTURE_SQUARE = 0xb65e42;
-const LAST_MOVE_SQUARE = 0xc99b55;
-const CHECK_SQUARE = 0xb74235;
+// Mirrors --board-light / --board-dark in style.css.
+const LIGHT_SQUARE = 0xc8a274;
+const DARK_SQUARE = 0x6d452a;
+// On a walnut board a gold highlight is nearly invisible on the light squares,
+// because it differs from them in lightness only. These separate by hue as
+// well, and each carries enough emissive to glow against either shade — the
+// legal/capture greens and reds match the 2D board's indicators.
+const SELECTED_SQUARE = 0xf6cc60;
+const LEGAL_SQUARE = 0x2fb87f;
+const CAPTURE_SQUARE = 0xd2543a;
+const LAST_MOVE_SQUARE = 0xa9793c;
+const CHECK_SQUARE = 0xc4402f;
+const DROP_TARGET_SQUARE = 0xffe9a8;
+// How far a dragged piece rises off the board, in board units.
+const DRAG_LIFT_HEIGHT = 0.42;
 
 const PIECE_PALETTE = {
     white: {
@@ -254,48 +262,63 @@ function buildKnightVoxels() {
         }
     }
 
-    // Overlapping volumes sculpt a recognizable cheek, forehead, jaw, and
-    // long horse muzzle without making the piece exceed its chess square.
+    // A horse reads by proportion, not detail: a deep round cheek at the back,
+    // then a long muzzle stepping forward and down along a near-straight nose
+    // bridge. A short snout on a round skull reads as a dog instead. The nose
+    // stops at x = -6.8 so the piece still fits inside its square.
     addEllipsoid(
         voxels,
-        -1.15 * detail, 8.8 * detail, 0,
-        3.0 * detail, 2.35 * detail, 1.9 * detail,
+        -0.4 * detail, 8.7 * detail, 0,
+        2.35 * detail, 2.55 * detail, 1.88 * detail,
     );
     addEllipsoid(
         voxels,
-        -4.15 * detail, 7.55 * detail, 0,
-        2.7 * detail, 1.32 * detail, 1.42 * detail,
+        -2.4 * detail, 8.5 * detail, 0,
+        1.9 * detail, 1.5 * detail, 1.45 * detail,
     );
     addEllipsoid(
         voxels,
-        -2.65 * detail, 6.72 * detail, 0,
-        1.95 * detail, 1.02 * detail, 1.46 * detail,
+        -4.0 * detail, 8.0 * detail, 0,
+        1.7 * detail, 1.25 * detail, 1.3 * detail,
     );
     addEllipsoid(
         voxels,
-        -0.2 * detail, 10.0 * detail, 0,
-        1.6 * detail, 1.85 * detail, 1.65 * detail,
+        -5.4 * detail, 7.5 * detail, 0,
+        1.4 * detail, 1.05 * detail, 1.12 * detail,
+    );
+    // Jaw under the cheek, giving the head a defined underline.
+    addEllipsoid(
+        voxels,
+        -2.1 * detail, 7.0 * detail, 0,
+        1.85 * detail, 1.0 * detail, 1.4 * detail,
+    );
+    // Forehead and poll.
+    addEllipsoid(
+        voxels,
+        0.1 * detail, 10.6 * detail, 0,
+        1.75 * detail, 1.7 * detail, 1.6 * detail,
     );
 
-    // Long tapered ears with contrasting inner-ear facets.
+    // Narrow upright ears set close together on the poll. The previous pair was
+    // wide-set and broad, which is a canine cue.
     [-1, 1].forEach(side => {
         addEllipsoid(
             voxels,
-            0.15 * detail,
-            12.05 * detail,
-            side * 1.08 * detail,
-            0.58 * detail,
-            1.75 * detail,
-            0.5 * detail,
+            0.3 * detail,
+            12.4 * detail,
+            side * 0.95 * detail,
+            0.45 * detail,
+            2.0 * detail,
+            0.42 * detail,
         );
         addEllipsoid(
             voxels,
-            -0.1 * detail,
-            12.25 * detail,
-            side * 1.1 * detail,
-            0.2 * detail,
-            1.0 * detail,
-            0.2 * detail,
+            0.1 * detail,
+            12.6 * detail,
+            side * 0.97 * detail,
+            0.16 * detail,
+            1.15 * detail,
+            0.16 * detail,
             true,
         );
     });
@@ -331,22 +354,22 @@ function buildKnightVoxels() {
     [-1, 1].forEach(side => {
         addEllipsoid(
             voxels,
-            -2.0 * detail, 9.2 * detail, side * 1.78 * detail,
+            -1.0 * detail, 9.6 * detail, side * 1.72 * detail,
             0.28 * detail, 0.28 * detail, 0.16 * detail,
             true,
         );
         addEllipsoid(
             voxels,
-            -5.85 * detail, 7.45 * detail, side * 0.92 * detail,
-            0.35 * detail, 0.28 * detail, 0.2 * detail,
+            -6.3 * detail, 7.5 * detail, side * 0.8 * detail,
+            0.32 * detail, 0.26 * detail, 0.2 * detail,
             true,
         );
-        for (let x = -5.1 * detail; x <= -3.25 * detail; x += 1) {
+        for (let x = -6.5 * detail; x <= -4.6 * detail; x += 1) {
             addVoxel(
                 voxels,
                 Math.round(x),
-                Math.round(6.75 * detail),
-                Math.round(side * 1.2 * detail),
+                Math.round(6.85 * detail),
+                Math.round(side * 1.0 * detail),
                 true,
             );
         }
@@ -791,16 +814,29 @@ function makeLabelTexture(text) {
 }
 
 export class VoxelChessBoard {
-    constructor({ container, resetButton, onSquareSelect }) {
+    constructor({
+        container,
+        resetButton,
+        onSquareSelect,
+        onSquareDrop,
+        onPieceGrab,
+        canDragSquare,
+    }) {
         if (!container) throw new Error('Voxel board container is missing.');
 
         this.container = container;
         this.resetButton = resetButton;
         this.onSquareSelect = onSquareSelect;
+        this.onSquareDrop = onSquareDrop;
+        this.onPieceGrab = onPieceGrab;
+        this.canDragSquare = canDragSquare;
         this.humanColor = 'white';
         this.interactive = true;
         this.pointerStart = null;
+        this.dragState = null;
+        this.dragHoverSquare = null;
         this.squareMeshes = new Map();
+        this.pieceGroups = new Map();
         this.pieceMeshes = [];
         this.pickables = [];
         this.lastHighlightState = {};
@@ -1046,6 +1082,8 @@ export class VoxelChessBoard {
         group.scale.setScalar(PIECE_UNIFORM_SCALES[type] || 1);
         const position = squarePosition(square);
         group.position.set(position.x, BOARD_TOP, position.z);
+        group.userData.square = square;
+        group.userData.restingY = BOARD_TOP;
         return group;
     }
 
@@ -1270,6 +1308,7 @@ export class VoxelChessBoard {
         this.pieceGroup.clear();
         this.pickables = [...this.squareMeshes.values()];
         this.pieceMeshes = [];
+        this.pieceGroups.clear();
 
         Object.entries(board).forEach(([square, pieceData]) => {
             const piece = this.createPieceMesh(
@@ -1278,6 +1317,7 @@ export class VoxelChessBoard {
                 square,
             );
             this.pieceGroup.add(piece);
+            this.pieceGroups.set(square, piece);
         });
 
         this.updateHighlights({
@@ -1312,24 +1352,29 @@ export class VoxelChessBoard {
 
             if (square === lastFrom || square === lastTo) {
                 color = LAST_MOVE_SQUARE;
-                emissive = 0x7d4d13;
-                intensity = 0.12;
+                emissive = 0x5a3a12;
+                intensity = 0.24;
             }
             if (legalBySquare.has(square)) {
                 const move = legalBySquare.get(square);
                 color = move.capture ? CAPTURE_SQUARE : LEGAL_SQUARE;
-                emissive = move.capture ? 0x7c1c13 : 0x8d5c18;
-                intensity = 0.2;
+                emissive = move.capture ? 0x7c1c13 : 0x146b47;
+                intensity = 0.38;
             }
             if (square === selectedSquare) {
                 color = SELECTED_SQUARE;
-                emissive = 0x9c6518;
-                intensity = 0.28;
+                emissive = 0xa8761a;
+                intensity = 0.55;
             }
             if (square === checkSquare) {
                 color = CHECK_SQUARE;
                 emissive = 0x8e110b;
-                intensity = 0.34;
+                intensity = 0.5;
+            }
+            if (square === this.dragHoverSquare) {
+                color = DROP_TARGET_SQUARE;
+                emissive = 0xc79a2e;
+                intensity = 0.7;
             }
 
             mesh.material.color.setHex(color);
@@ -1380,15 +1425,71 @@ export class VoxelChessBoard {
     }
 
     bindEvents() {
-        this.renderer.domElement.addEventListener('pointerdown', (event) => {
+        const canvas = this.renderer.domElement;
+
+        canvas.addEventListener('pointerdown', (event) => {
             this.pointerStart = {
                 x: event.clientX,
                 y: event.clientY,
                 time: performance.now(),
             };
+
+            // A press that lands on one of your own pieces starts a drag
+            // instead of an orbit, so the same gesture cannot mean both.
+            if (!this.interactive) return;
+            const square = this.squareAtPointer(event);
+            if (!square || !this.canDragSquare?.(square)) return;
+
+            this.dragState = {
+                pointerId: event.pointerId,
+                fromSquare: square,
+                dragging: false,
+            };
+            this.controls.enableRotate = false;
+            try {
+                canvas.setPointerCapture(event.pointerId);
+            } catch {
+                // Capture is an enhancement; the canvas still receives moves.
+            }
         });
 
-        this.renderer.domElement.addEventListener('pointerup', (event) => {
+        canvas.addEventListener('pointermove', (event) => {
+            if (!this.dragState || event.pointerId !== this.dragState.pointerId) return;
+            if (!this.dragState.dragging) {
+                const distance = Math.hypot(
+                    event.clientX - this.pointerStart.x,
+                    event.clientY - this.pointerStart.y,
+                );
+                if (distance < 7) return;
+                this.dragState.dragging = true;
+                this.liftDraggedPiece(this.dragState.fromSquare, true);
+                this.container.classList.add('board-dragging');
+                // Selecting on grab shows the legal squares underneath the
+                // piece while it is still in the air.
+                this.onPieceGrab?.(this.dragState.fromSquare);
+            }
+
+            const hovered = this.squareAtPointer(event);
+            if (hovered !== this.dragHoverSquare) {
+                this.dragHoverSquare = hovered;
+                this.refreshHighlights();
+            }
+        });
+
+        canvas.addEventListener('pointerup', (event) => {
+            const drag = this.dragState;
+            if (drag && event.pointerId === drag.pointerId) {
+                this.endPieceDrag();
+                if (drag.dragging) {
+                    this.pointerStart = null;
+                    const target = this.squareAtPointer(event);
+                    if (target && target !== drag.fromSquare) {
+                        this.onSquareDrop?.(drag.fromSquare, target);
+                    }
+                    return;
+                }
+            }
+
             if (!this.pointerStart || !this.interactive) return;
             const distance = Math.hypot(
                 event.clientX - this.pointerStart.x,
@@ -1400,20 +1501,50 @@ export class VoxelChessBoard {
             this.pickSquare(event);
         });
 
-        this.renderer.domElement.addEventListener('pointercancel', () => {
+        canvas.addEventListener('pointercancel', () => {
             this.pointerStart = null;
+            this.endPieceDrag();
         });
 
         this.resetButton?.addEventListener('click', () => this.resetView());
     }
 
-    pickSquare(event) {
+    endPieceDrag() {
+        if (!this.dragState) return;
+        const { fromSquare } = this.dragState;
+        this.dragState = null;
+        this.controls.enableRotate = true;
+        this.container.classList.remove('board-dragging');
+        this.liftDraggedPiece(fromSquare, false);
+        if (this.dragHoverSquare) {
+            this.dragHoverSquare = null;
+            this.refreshHighlights();
+        }
+    }
+
+    // Raises the piece off the board while it is being dragged. This moves the
+    // existing model; it does not alter the voxel geometry or materials.
+    liftDraggedPiece(square, lifted) {
+        const group = this.pieceGroups.get(square);
+        if (!group) return;
+        group.position.y = group.userData.restingY + (lifted ? DRAG_LIFT_HEIGHT : 0);
+    }
+
+    refreshHighlights() {
+        this.updateHighlights(this.lastHighlightState);
+    }
+
+    squareAtPointer(event) {
         const bounds = this.renderer.domElement.getBoundingClientRect();
         this.pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
         this.pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
         this.raycaster.setFromCamera(this.pointer, this.camera);
         const hits = this.raycaster.intersectObjects(this.pickables, false);
-        const square = hits.find(hit => hit.object.userData.square)?.object.userData.square;
+        return hits.find(hit => hit.object.userData.square)?.object.userData.square || null;
+    }
+
+    pickSquare(event) {
+        const square = this.squareAtPointer(event);
         if (square) this.onSquareSelect?.(square);
     }
 

@@ -1,29 +1,36 @@
 :root {
     color-scheme: dark;
-    --bg: #0b0a08;
-    --bg-raised: #11100e;
-    --surface: rgba(24, 21, 17, 0.9);
-    --surface-solid: #181510;
-    --surface-soft: rgba(245, 232, 207, 0.045);
-    --surface-hover: rgba(245, 232, 207, 0.075);
-    --line: rgba(225, 199, 154, 0.13);
-    --line-strong: rgba(225, 199, 154, 0.24);
-    --text: #f4ede1;
-    --text-soft: #c8bcaa;
-    --text-muted: #8d8375;
-    --human: #d7b06a;
-    --human-deep: #a67536;
-    --human-soft: rgba(215, 176, 106, 0.13);
-    --ai: #bd7a50;
-    --ai-deep: #82482f;
-    --ai-soft: rgba(189, 122, 80, 0.14);
+    /* The shell is neutral so the warm board and the gold accent are the only
+       saturated things on screen. Everything used to be brown-on-brown, which
+       left panels, borders, and labels muddled together. */
+    --bg: #0a0b0d;
+    --bg-raised: #101216;
+    --surface: rgba(20, 23, 28, 0.9);
+    --surface-solid: #14171c;
+    --surface-soft: rgba(226, 235, 247, 0.045);
+    --surface-hover: rgba(226, 235, 247, 0.08);
+    --line: rgba(214, 226, 242, 0.12);
+    --line-strong: rgba(214, 226, 242, 0.22);
+    --text: #f1f4f8;
+    --text-soft: #c3cad5;
+    --text-muted: #99a2b0;
+    /* Warm gold is you; cool cyan is the machine. These were both browns a
+       shade apart, so turn state and side ownership read as the same colour. */
+    --human: #e2b768;
+    --human-deep: #a97a2f;
+    --human-soft: rgba(226, 183, 104, 0.14);
+    --ai: #5fb4cf;
+    --ai-deep: #2c7d99;
+    --ai-soft: rgba(95, 180, 207, 0.15);
     --danger: #ff7373;
     --danger-soft: rgba(255, 115, 115, 0.14);
     --blue: #7ca8ff;
-    --board-light: #f0d9b5;
-    --board-light-alt: #e6c99d;
-    --board-dark: #b58863;
-    --board-dark-alt: #9f6f4d;
+    /* Deep walnut, so the board sits inside the dark shell instead of glaring
+       out of it. The 3D board mirrors these in voxel-board.js. */
+    --board-light: #c8a274;
+    --board-light-alt: #b68f63;
+    --board-dark: #6d452a;
+    --board-dark-alt: #593722;
     --board-selection: rgba(255, 226, 112, 0.68);
     --board-legal: #d6a348;
     --board-last: rgba(247, 205, 98, 0.48);
@@ -57,8 +64,8 @@ body {
     overflow-x: hidden;
     color: var(--text);
     background:
-        radial-gradient(circle at 14% 8%, rgba(143, 96, 44, 0.14), transparent 32rem),
-        radial-gradient(circle at 88% 78%, rgba(104, 56, 34, 0.13), transparent 34rem),
+        radial-gradient(circle at 14% 8%, rgba(226, 183, 104, 0.07), transparent 32rem),
+        radial-gradient(circle at 88% 78%, rgba(95, 180, 207, 0.06), transparent 34rem),
         var(--bg);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -1165,7 +1172,7 @@ a:focus-visible {
 .game-container {
     width: min(1480px, calc(100% - 48px));
     margin: 0 auto;
-    padding: 35px 0 60px;
+    padding: 22px 0 34px;
     animation: game-arrival 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -1263,22 +1270,34 @@ a:focus-visible {
 }
 
 .game-layout {
+    /* Clamp the board by viewport height so a full match — both rails and all
+       64 squares — stays on screen without scrolling on a laptop display. The
+       floor keeps squares usable on short viewports, which scroll instead. */
+    --board-size: min(710px, max(420px, 100vh - 300px));
+    --board-size: min(710px, max(420px, 100dvh - 300px));
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 370px;
+    /* Sizing the board column to the board itself keeps the pair optically
+       centred instead of drifting left when the height clamp kicks in. */
+    grid-template-columns: minmax(0, var(--board-size)) 370px;
     gap: clamp(28px, 4vw, 58px);
     align-items: start;
+    justify-content: center;
 }
 
 .board-section {
     display: flex;
+    width: 100%;
+    /* The stacked layouts below 980px have no board column to cap the width. */
+    max-width: 710px;
     min-width: 0;
+    margin: 0 auto;
     align-items: center;
     flex-direction: column;
 }
 
 .player-rail {
     display: flex;
-    width: min(100%, 710px);
+    width: 100%;
     min-height: 61px;
     align-items: center;
     gap: 12px;
@@ -1309,28 +1328,31 @@ a:focus-visible {
     font-size: 1.7rem;
 }
 
+/* The avatars carry the side's identity: cool for the machine, gold for you.
+   Both were gold before, so the two rails looked interchangeable. */
 .ai-avatar {
-    border: 1px solid rgba(232, 184, 109, 0.24);
-    color: #131515;
-    background: linear-gradient(145deg, #d8a95f, #8d6028);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(95, 180, 207, 0.3);
+    color: #f2fbff;
+    background: linear-gradient(145deg, #3f8fa8, #1e5a6b);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.24);
 }
 
 .human-avatar {
-    border: 1px solid rgba(215, 176, 106, 0.26);
-    color: #f6edda;
-    background: linear-gradient(145deg, rgba(215, 176, 106, 0.15), rgba(215, 176, 106, 0.045));
+    border: 1px solid rgba(226, 183, 104, 0.34);
+    color: #1a1408;
+    background: linear-gradient(145deg, #e2b768, #a97a2f);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .ai-avatar.white-side {
-    color: #f6edda;
-    background: linear-gradient(145deg, #5d725f, #2f4036);
+    color: #f2fbff;
+    background: linear-gradient(145deg, #57a6bd, #2c7d99);
 }
 
 .human-avatar.black-side {
-    color: #111513;
-    background: linear-gradient(145deg, #6fbf9d, #31795e);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.18);
+    color: #f7edd9;
+    background: linear-gradient(145deg, #7a5722, #3d2a0d);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
 }
 
 .rail-copy {
@@ -1379,9 +1401,43 @@ a:focus-visible {
     background: var(--human);
 }
 
+.rail-captures {
+    display: flex;
+    align-items: center;
+    margin-right: 6px;
+    font-family: Georgia, serif;
+    font-size: 1.15rem;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.rail-captures:empty {
+    display: none;
+}
+
+.capture-glyph.white {
+    color: #efe4cb;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.capture-glyph.black {
+    color: #6f6553;
+    text-shadow: 0 0 1px rgba(240, 228, 203, 0.35);
+}
+
+.capture-score {
+    margin-left: 7px;
+    color: var(--human);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
 .board-stage {
     position: relative;
-    width: min(100%, 710px);
+    width: 100%;
     aspect-ratio: 1;
     isolation: isolate;
 }
@@ -1443,7 +1499,8 @@ a:focus-visible {
     touch-action: none;
 }
 
-.voxel-board:active {
+.voxel-board:active,
+.voxel-board.board-dragging {
     cursor: grabbing;
 }
 
@@ -1672,6 +1729,46 @@ a:focus-visible {
     50% {
         filter: brightness(1.13);
     }
+}
+
+.square.own-piece {
+    touch-action: none;
+}
+
+.square.own-piece .piece {
+    cursor: grab;
+}
+
+.chess-board.dragging-piece .square {
+    cursor: grabbing;
+}
+
+.square.drag-source .piece {
+    opacity: 0.3;
+    filter: saturate(0.7);
+    transition: none;
+}
+
+.square.drag-over {
+    z-index: 4;
+    box-shadow: inset 0 0 0 4px rgba(255, 230, 129, 0.6);
+}
+
+.drag-ghost {
+    position: fixed;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.44));
+    pointer-events: none;
+    transform: translate(-50%, -56%) scale(1.06);
+    will-change: left, top;
+}
+
+.drag-ghost .piece {
+    width: 100%;
+    height: 100%;
+    transition: none;
 }
 
 .piece {
@@ -2573,10 +2670,10 @@ a:focus-visible {
 
 .provider-badge {
     padding: 6px 8px;
-    border: 1px solid rgba(232, 184, 109, 0.2);
+    border: 1px solid rgba(95, 180, 207, 0.22);
     border-radius: 999px;
-    color: #c9ad82;
-    background: rgba(232, 184, 109, 0.07);
+    color: #9ecddd;
+    background: rgba(95, 180, 207, 0.08);
     font-family: var(--font-mono);
     font-size: 0.5rem;
     letter-spacing: 0.02em;
@@ -2629,11 +2726,11 @@ a:focus-visible {
     flex: 0 0 auto;
     place-items: center;
     overflow: hidden;
-    border: 1px solid rgba(232, 184, 109, 0.26);
+    border: 1px solid rgba(95, 180, 207, 0.3);
     border-radius: 17px;
-    color: #171512;
-    background: linear-gradient(145deg, #e9bf7e, #9e6a2e);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 24px rgba(93, 56, 18, 0.22);
+    color: #f2fbff;
+    background: linear-gradient(145deg, #4d9db8, #22647b);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 24px rgba(12, 52, 66, 0.3);
 }
 
 .opponent-emblem::after {
