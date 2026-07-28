@@ -19,6 +19,28 @@
     // Heaviest first, so a rail reads queen down to pawn.
     const CAPTURE_ORDER = ['q', 'r', 'b', 'n', 'p'];
     const STARTING_COUNTS = { p: 8, n: 2, b: 2, r: 2, q: 1 };
+    const MATERIAL_CAPTURE_INSIGHTS = Object.freeze([
+        'The exchange changes the material balance.',
+        'A piece leaves the board, and the position takes on a new shape.',
+        'That capture redraws the material count.',
+        'The armies are lighter, and the balance must be recalculated.',
+        'A capture is completed, altering the resources available to both sides.',
+        'The material picture shifts after that exchange.',
+        'One defender disappears, changing the practical balance.',
+        'The board opens up as another piece is removed.',
+        'That capture changes the count and the character of the game.',
+        'The exchange reduces the forces and creates a fresh imbalance.',
+        'A unit is gone, so both plans need to be reassessed.',
+        'The material ledger has changed with that capture.',
+        'Another piece is taken away, reshaping the position.',
+        'The balance of forces moves after that exchange.',
+        'That capture removes a key resource from the board.',
+        'The position grows leaner as the material count changes.',
+        'A piece is taken, and the strategic balance shifts.',
+        'Both sides now work with a different set of resources.',
+        'The material equation changes, opening new possibilities.',
+        'The capture alters both the count and the tension on the board.',
+    ]);
 
     function emptyCounts() {
         return { p: 0, n: 0, b: 0, r: 0, q: 0 };
@@ -57,6 +79,15 @@
         const loss = capturedMaterial(board);
         const opponent = color === 'white' ? 'black' : 'white';
         return loss[opponent].points - loss[color].points;
+    }
+
+    function materialCaptureInsight(index) {
+        const requested = Number.isInteger(index) ? index : 0;
+        const normalized = (
+            (requested % MATERIAL_CAPTURE_INSIGHTS.length)
+            + MATERIAL_CAPTURE_INSIGHTS.length
+        ) % MATERIAL_CAPTURE_INSIGHTS.length;
+        return MATERIAL_CAPTURE_INSIGHTS[normalized];
     }
 
     function squareName(file, rank) {
@@ -137,8 +168,10 @@
         CAPTURE_GLYPHS,
         CAPTURE_ORDER,
         STARTING_COUNTS,
+        MATERIAL_CAPTURE_INSIGHTS,
         capturedMaterial,
         materialAdvantage,
+        materialCaptureInsight,
         squareName,
         isLightSquare,
         boardLayout,

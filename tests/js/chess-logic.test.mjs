@@ -8,6 +8,8 @@ const logic = require('../../static/js/chess-logic.js');
 const {
     capturedMaterial,
     materialAdvantage,
+    MATERIAL_CAPTURE_INSIGHTS,
+    materialCaptureInsight,
     squareName,
     isLightSquare,
     boardLayout,
@@ -116,6 +118,35 @@ test('materialAdvantage: is zero on an even trade', () => {
     });
     assert.equal(materialAdvantage(board, 'white'), 0);
     assert.equal(materialAdvantage(board, 'black'), 0);
+});
+
+test('commentator: provides 20 distinct material-capture insights', () => {
+    assert.equal(MATERIAL_CAPTURE_INSIGHTS.length, 20);
+    assert.equal(new Set(MATERIAL_CAPTURE_INSIGHTS).size, 20);
+    MATERIAL_CAPTURE_INSIGHTS.forEach(phrase => {
+        assert.ok(phrase.length > 20);
+        assert.match(phrase, /[.!?]$/);
+    });
+});
+
+test('commentator: cycles through every material phrase without immediate repeats', () => {
+    const sequence = Array.from(
+        { length: MATERIAL_CAPTURE_INSIGHTS.length + 1 },
+        (_, index) => materialCaptureInsight(index),
+    );
+    assert.deepEqual(
+        sequence.slice(0, MATERIAL_CAPTURE_INSIGHTS.length),
+        MATERIAL_CAPTURE_INSIGHTS,
+    );
+    assert.equal(sequence.at(-1), MATERIAL_CAPTURE_INSIGHTS[0]);
+    sequence.slice(1).forEach((phrase, index) => {
+        assert.notEqual(phrase, sequence[index]);
+    });
+});
+
+test('commentator: normalizes invalid and negative phrase indexes safely', () => {
+    assert.equal(materialCaptureInsight(undefined), MATERIAL_CAPTURE_INSIGHTS[0]);
+    assert.equal(materialCaptureInsight(-1), MATERIAL_CAPTURE_INSIGHTS.at(-1));
 });
 
 test('squareName: maps file and rank indices to algebraic names', () => {
