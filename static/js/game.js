@@ -267,6 +267,7 @@ boardModeInputs.forEach(input => {
     input.addEventListener('change', () => {
         if (!input.checked) return;
         selectedBoardMode = input.value;
+        rememberBoardMode(selectedBoardMode);
         applyBoardMode();
     });
 });
@@ -280,9 +281,13 @@ providerChoices.forEach(choice => {
     });
 });
 syncProviderChoices(aiProviderSelect.value);
-loadPlayers();
-loadModels();
 initializeVoxelBoard();
+// Recover a match left running on the server before falling back to setup.
+resumeActiveGame().then(resumed => {
+    if (resumed) return;
+    loadPlayers();
+    loadModels();
+});
 
 document.addEventListener('pointerdown', unlockGameAudio, { once: true, capture: true });
 document.addEventListener('keydown', unlockGameAudio, { once: true, capture: true });
@@ -635,6 +640,74 @@ function buildMoveCommentary({
     }
 
     return `${action} ${getPositionInsight(moveUci, movingSymbol, capture, nextState)}`;
+}
+
+const BOARD_MODE_STORAGE_KEY = 'kingside.board-mode';
+
+// The board choice lives only in the browser, so it is remembered here to
+// survive the reload that resumeActiveGame recovers from.
+function rememberBoardMode(mode) {
+    try {
+        window.localStorage.setItem(BOARD_MODE_STORAGE_KEY, mode);
+    } catch {
+        // Private browsing can refuse storage; the default mode still works.
+    }
+}
+
+function storedBoardMode() {
+    try {
+        const stored = window.localStorage.getItem(BOARD_MODE_STORAGE_KEY);
+        return stored === 'classic' || stored === 'voxel' ? stored : null;
+    } catch {
+        return null;
+    }
+}
+
+// The game lives in the Flask process, not the page, so a reload or a closed
+// tab leaves it intact on the server. Without this the setup modal would open
+// over a live match and starting a new one would overwrite it.
+async function resumeActiveGame() {
+    let state;
+    try {
+        const response = await fetch('/api/game-state');
+        if (!response.ok) return false;
+        state = await response.json();
+    } catch (error) {
+        console.error('Could not check for a game in progress:', error);
+        return false;
+    }
+    if (!state || state.active === false || !state.game_id) return false;
+
+    gameState = state;
+    setAIConnectionStatus(true);
+    modalOverlay.classList.add('hidden');
+    gameContainer.classList.remove('hidden');
+    document.body.classList.remove('modal-open');
+    // applyBoardMode only engages the voxel board once the container is
+    // visible, so restore the stored choice after revealing the game.
+    selectBoardMode(storedBoardMode() || selectedBoardMode);
+
+    selectedSquare = null;
+    legalMoves = [];
+    isWaitingForAI = false;
+    isMoveAnimating = false;
+    reviewPly = null;
+    boardFlipped = false;
+    coachRequestGameId = null;
+    lastMove = gameState.move_history?.length
+        ? gameState.move_history[gameState.move_history.length - 1]
+        : null;
+
+    renderPromotionChoices(gameState.human_color);
+    renderBoard();
+    updateUI();
+
+    // A reload during the opponent's turn would otherwise strand the match
+    // with nothing left to trigger its reply.
+    if (!gameState.game_over && gameState.current_turn === gameState.ai_color) {
+        await getAIMove();
+    }
+    return true;
 }
 
 async function showModal() {
@@ -1246,6 +1319,7 @@ async function startGame() {
     selectedBoardMode = (
         document.querySelector('input[name="board-mode"]:checked')?.value || 'voxel'
     );
+    rememberBoardMode(selectedBoardMode);
 
     try {
         btnStart.disabled = true;
