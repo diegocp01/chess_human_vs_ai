@@ -4209,11 +4209,16 @@ a:focus-visible {
 }
 
 .anthropic-logo {
-    color: #161411;
-    background: linear-gradient(145deg, #ede7dc, #bdb4a5);
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    font-weight: 850;
+    border-color: rgba(217, 119, 87, 0.35);
+    background: linear-gradient(145deg, #2c2119, #1b1512);
+}
+
+/* The other marks are dark artwork that the shared rule inverts to read on a
+   dark tile. Anthropic's is already a light glyph on its own warm ground, so
+   it opts out and keeps its brand colour. */
+.anthropic-logo img {
+    border-radius: 5px;
+    filter: none;
 }
 
 .codex-logo {
