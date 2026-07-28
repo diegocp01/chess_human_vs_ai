@@ -18,3 +18,9 @@ __pycache__/
 game_logs/*.json
 trained_ai/*.json
 player_data/*.json
+
+# screenshots and traces from local design/QA sessions
+output/
+.playwright-cli/
+.playwright-mcp/
+.claude/worktrees/
