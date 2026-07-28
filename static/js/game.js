@@ -48,6 +48,9 @@ const railHumanRatingEl = document.getElementById('rail-human-rating');
 const railAiCapturesEl = document.getElementById('rail-ai-captures');
 const railHumanCapturesEl = document.getElementById('rail-human-captures');
 const btnRetryAi = document.getElementById('btn-retry-ai');
+const btnCopyPgn = document.getElementById('btn-copy-pgn');
+const copyPgnLabel = document.getElementById('copy-pgn-label');
+const pgnFallback = document.getElementById('pgn-fallback');
 const btnResign = document.getElementById('btn-resign');
 const btnTakeback = document.getElementById('btn-takeback');
 const btnFlipBoard = document.getElementById('btn-flip-board');
@@ -336,6 +339,7 @@ chessBoard.addEventListener('focusout', () => {
 });
 chessBoard.addEventListener('pointerdown', handleBoardPointerDown);
 btnRetryAi?.addEventListener('click', retryAIMove);
+btnCopyPgn?.addEventListener('click', copyGamePgn);
 btnResign?.addEventListener('click', () => askConfirmation({
     title: 'Resign this match?',
     copy: 'The game is recorded as a loss and your rating is updated.',
@@ -1345,6 +1349,7 @@ async function startGame() {
         gameState = data.game_state;
         setAIConnectionStatus(true);
         hideAIRetry();
+        pgnFallback?.classList.add('hidden');
         modalOverlay.classList.add('hidden');
         gameContainer.classList.remove('hidden');
         document.body.classList.remove('modal-open');
@@ -1717,6 +1722,69 @@ function displayedBoard() {
     if (reviewPly === null) return gameState?.board;
     const record = gameState?.move_records?.find(entry => entry.ply === reviewPly);
     return fenToBoard(record?.fen_after) || gameState?.board;
+}
+
+let copyPgnResetTimer = null;
+
+// navigator.clipboard needs a secure context, which http://localhost provides
+// but a bare LAN address does not, so fall back to a temporary selection.
+async function writeToClipboard(text) {
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch {
+        // Fall through to the legacy path below.
+    }
+
+    const scratch = document.createElement('textarea');
+    scratch.value = text;
+    scratch.setAttribute('readonly', '');
+    scratch.style.cssText = 'position:fixed;top:-1000px;opacity:0;';
+    document.body.appendChild(scratch);
+    scratch.select();
+    let copied = false;
+    try {
+        copied = document.execCommand('copy');
+    } catch {
+        copied = false;
+    }
+    scratch.remove();
+    return copied;
+}
+
+async function copyGamePgn() {
+    if (!gameState?.pgn) return;
+    const copied = await writeToClipboard(gameState.pgn);
+
+    window.clearTimeout(copyPgnResetTimer);
+    btnCopyPgn.classList.toggle('copied', copied);
+    btnCopyPgn.classList.toggle('copy-failed', !copied);
+    copyPgnLabel.textContent = copied ? 'Copied' : 'Select';
+
+    if (copied) {
+        pgnFallback?.classList.add('hidden');
+    } else if (pgnFallback) {
+        // The clipboard can be refused outright — no user activation, a
+        // permission policy, an insecure origin. Reveal the PGN already
+        // selected so it is one keystroke away rather than unreachable.
+        pgnFallback.value = gameState.pgn;
+        pgnFallback.classList.remove('hidden');
+        pgnFallback.focus();
+        pgnFallback.select();
+    }
+
+    copyPgnResetTimer = window.setTimeout(() => {
+        btnCopyPgn.classList.remove('copied', 'copy-failed');
+        copyPgnLabel.textContent = 'PGN';
+    }, 2000);
+}
+
+function updatePgnControl() {
+    if (!btnCopyPgn) return;
+    // A PGN with no moves is not worth exporting anywhere.
+    btnCopyPgn.disabled = !gameState?.pgn || !gameState.move_history_san?.length;
 }
 
 function isHumanPieceSquare(square) {
@@ -2913,6 +2981,7 @@ function updateUI() {
     }
 
     updateMatchActions();
+    updatePgnControl();
 
     // Update move history
     updateMoveHistory();

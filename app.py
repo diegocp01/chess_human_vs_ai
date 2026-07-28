@@ -297,13 +297,36 @@ def game_log_path(game_id: str) -> Path:
     return GAME_LOG_DIR / f'{safe_id}.json'
 
 
+def chess_result_for(state: dict) -> str:
+    """Score the game the way PGN expects.
+
+    board.result() only knows about positions it can adjudicate, so a
+    resignation or a claimed draw leaves it reporting '*' — an unfinished
+    game. Anything that ends a match has to be scored from the recorded
+    winner instead, or exports import elsewhere as abandoned.
+    """
+    if not state.get('game_over'):
+        return '*'
+    if state.get('winner') == 'draw':
+        return '1/2-1/2'
+    white_won = (state.get('winner') == 'human') == (state['human_color'] == 'white')
+    return '1-0' if white_won else '0-1'
+
+
 def game_pgn(state: dict) -> str:
-    """Export the current move stack as compact PGN."""
+    """Export the current move stack as PGN, ready to import elsewhere."""
     game = chess.pgn.Game.from_board(state['board'])
+    human_name = (state.get('player') or {}).get('username') or 'Human'
+    is_white = state['human_color'] == 'white'
+
     game.headers['Event'] = 'Kingside local match'
+    game.headers['Site'] = 'Kingside'
     game.headers['Date'] = state['started_at'][:10].replace('-', '.')
-    game.headers['White'] = 'Human' if state['human_color'] == 'white' else state['ai_display_name']
-    game.headers['Black'] = 'Human' if state['human_color'] == 'black' else state['ai_display_name']
+    game.headers['White'] = human_name if is_white else state['ai_display_name']
+    game.headers['Black'] = state['ai_display_name'] if is_white else human_name
+    game.headers['Result'] = chess_result_for(state)
+    if state.get('game_result'):
+        game.headers['Termination'] = state['game_result']
     return str(game)
 
 
@@ -329,7 +352,7 @@ def build_game_record(state: dict) -> dict:
                 else 'ai' if winner == 'human' else 'human'
             ),
             'description': state['game_result'],
-            'chess_result': state['board'].result(claim_draw=True),
+            'chess_result': chess_result_for(state),
         }
 
     return {
@@ -1159,6 +1182,7 @@ def get_client_state(state):
         'game_result': state['game_result'],
         'current_turn': state['current_turn'],
         'is_check': board.is_check(),
+        'pgn': game_pgn(state),
         'can_takeback': can_take_back(state),
         'resigned_by': state.get('resigned_by'),
         'can_claim_draw': board.can_claim_draw() and not state['game_over'],
