@@ -1170,7 +1170,7 @@ a:focus-visible {
 
 /* Match shell */
 .game-container {
-    width: min(1480px, calc(100% - 48px));
+    width: min(1680px, calc(100% - 32px));
     margin: 0 auto;
     padding: 22px 0 34px;
     animation: game-arrival 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -1270,16 +1270,13 @@ a:focus-visible {
 }
 
 .game-layout {
-    /* Clamp the board by viewport height so a full match — both rails and all
-       64 squares — stays on screen without scrolling on a laptop display. The
-       floor keeps squares usable on short viewports, which scroll instead. */
-    --board-size: min(710px, max(420px, 100vh - 300px));
-    --board-size: min(710px, max(420px, 100dvh - 300px));
+    /* The board is the match's focal point. Give it most of the viewport while
+       retaining a compact intelligence rail and a usable floor on short screens. */
+    --board-size: min(840px, max(500px, 100vh - 210px), calc(100vw - 410px));
+    --board-size: min(840px, max(500px, 100dvh - 210px), calc(100vw - 410px));
     display: grid;
-    /* Sizing the board column to the board itself keeps the pair optically
-       centred instead of drifting left when the height clamp kicks in. */
-    grid-template-columns: minmax(0, var(--board-size)) 370px;
-    gap: clamp(28px, 4vw, 58px);
+    grid-template-columns: minmax(0, var(--board-size)) minmax(300px, 340px);
+    gap: clamp(22px, 2.4vw, 36px);
     align-items: start;
     justify-content: center;
 }
@@ -1288,7 +1285,7 @@ a:focus-visible {
     display: flex;
     width: 100%;
     /* The stacked layouts below 980px have no board column to cap the width. */
-    max-width: 710px;
+    max-width: 840px;
     min-width: 0;
     margin: 0 auto;
     align-items: center;
@@ -3788,8 +3785,8 @@ a:focus-visible {
 /* Responsive */
 @media (max-width: 1180px) {
     .game-layout {
-        grid-template-columns: minmax(0, 1fr) 340px;
-        gap: 30px;
+        grid-template-columns: minmax(0, var(--board-size)) minmax(290px, 320px);
+        gap: 24px;
     }
 
     .setup-card {
