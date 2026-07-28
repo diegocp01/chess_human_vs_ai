@@ -224,6 +224,7 @@ let selectedBoardMode = (
 );
 let commentatorEnabled = false;
 let commentatorVoice = null;
+let materialCommentaryIndex = null;
 let coachRequestGameId = null;
 let selectedPlayer = null;
 let profileLoading = true;
@@ -587,6 +588,19 @@ function getMovePieceName(symbol) {
     return names[symbol?.toLowerCase()] || 'piece';
 }
 
+function nextMaterialCaptureInsight() {
+    if (materialCommentaryIndex === null) {
+        materialCommentaryIndex = Math.floor(
+            Math.random() * MATERIAL_CAPTURE_INSIGHTS.length
+        );
+    }
+    const insight = materialCaptureInsight(materialCommentaryIndex);
+    materialCommentaryIndex = (
+        materialCommentaryIndex + 1
+    ) % MATERIAL_CAPTURE_INSIGHTS.length;
+    return insight;
+}
+
 function getPositionInsight(moveUci, movingSymbol, capture, nextState) {
     const from = moveUci.slice(0, 2);
     const to = moveUci.slice(2, 4);
@@ -602,7 +616,7 @@ function getPositionInsight(moveUci, movingSymbol, capture, nextState) {
         return 'The king castles into safety and the rook joins the position.';
     }
     if (capture) {
-        return 'Material comes off the board, changing the balance of the position.';
+        return nextMaterialCaptureInsight();
     }
     if (['d4', 'd5', 'e4', 'e5'].includes(to)) {
         return 'The center is under fresh pressure.';
@@ -1496,7 +1510,9 @@ function updateHighlights() {
 const {
     CAPTURE_GLYPHS,
     CAPTURE_ORDER,
+    MATERIAL_CAPTURE_INSIGHTS,
     capturedMaterial,
+    materialCaptureInsight,
     boardLayout,
     squareName: squareNameFor,
     isLightSquare,
