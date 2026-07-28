@@ -31,6 +31,11 @@ from player_profiles import (
     record_game_result,
     select_player,
 )
+from persistent_storage import (
+    default_data_root,
+    migrate_legacy_storage,
+    storage_paths,
+)
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -38,10 +43,13 @@ app.secret_key = os.urandom(24)
 # Server-side game state storage
 GAME_STATE = {}
 PROJECT_ROOT = Path(__file__).resolve().parent
-GAME_LOG_DIR = PROJECT_ROOT / 'game_logs'
+PERSISTENT_DATA_ROOT = default_data_root()
+PERSISTENT_STORAGE_PATHS = storage_paths(PERSISTENT_DATA_ROOT)
+GAME_LOG_DIR = PERSISTENT_STORAGE_PATHS['game_log_dir']
 CODEX_COACH_MODEL = os.getenv('CODEX_COACH_MODEL', 'gpt-5.6-sol')
-TRAINED_AI_MODEL_PATH = PROJECT_ROOT / 'trained_ai' / 'model.json'
-PLAYER_DATA_PATH = PROJECT_ROOT / 'player_data' / 'profiles.json'
+TRAINED_AI_MODEL_PATH = PERSISTENT_STORAGE_PATHS['trained_model_path']
+PLAYER_DATA_PATH = PERSISTENT_STORAGE_PATHS['player_data_path']
+_PERSISTENT_STORAGE_READY = False
 
 # API-backed models remain available alongside the Codex subscription option.
 API_MODELS = {
@@ -125,6 +133,25 @@ def board_to_ascii(board: chess.Board) -> str:
 
     lines.append("  a b c d e f g h")
     return "\n".join(lines)
+
+
+def ensure_persistent_storage() -> None:
+    """Migrate legacy checkout-local data once before serving real requests."""
+    global _PERSISTENT_STORAGE_READY
+    if _PERSISTENT_STORAGE_READY:
+        return
+
+    # Tests replace these paths with temporary files. Do not import a
+    # developer's real local data into an isolated test store.
+    if (
+        GAME_LOG_DIR != PERSISTENT_STORAGE_PATHS['game_log_dir']
+        or TRAINED_AI_MODEL_PATH != PERSISTENT_STORAGE_PATHS['trained_model_path']
+        or PLAYER_DATA_PATH != PERSISTENT_STORAGE_PATHS['player_data_path']
+    ):
+        return
+
+    migrate_legacy_storage(PROJECT_ROOT, PERSISTENT_DATA_ROOT)
+    _PERSISTENT_STORAGE_READY = True
 
 
 def get_board_state(board: chess.Board) -> dict:
@@ -504,6 +531,11 @@ def finalize_game(state: dict, checkmate_winner: str) -> None:
                 'status': 'error',
                 'error': str(exc),
             }
+
+
+@app.before_request
+def prepare_persistent_storage():
+    ensure_persistent_storage()
 
 
 @app.route('/')
