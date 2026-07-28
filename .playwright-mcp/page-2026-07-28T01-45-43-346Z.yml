@@ -1,0 +1,217 @@
+- generic [active] [ref=f23e1]:
+  - banner [ref=f23e2]:
+    - status [ref=f23e4]:
+      - generic [ref=f23e6]: AI Model connected
+  - main [ref=f23e142]:
+    - region "Chess game" [ref=f23e143]:
+      - status [ref=f23e145]:
+        - generic [ref=f23e147]: Your turn
+        - generic [ref=f23e148]: Black
+      - generic [ref=f23e149]:
+        - region "Chessboard arena" [ref=f23e150]:
+          - generic [ref=f23e151]:
+            - generic [ref=f23e152]: ♕
+            - generic [ref=f23e153]:
+              - generic [ref=f23e154]: White · AI
+              - strong [ref=f23e155]: Trained AI Default
+            - generic [ref=f23e156]: Watching
+          - generic [ref=f23e159]:
+            - generic:
+              - img "Interactive voxel chessboard. Drag to orbit. Scroll or pinch to zoom."
+              - generic:
+                - generic:
+                  - strong: Drag
+                  - text: orbit ·
+                  - strong: Scroll
+                  - text: zoom
+                - button "Reset 3D board view" [ref=f23e161] [cursor=pointer]: Reset view
+            - grid "Chessboard from Black's perspective" [ref=f23e164]:
+              - gridcell "White rook on h1" [ref=f23e165] [cursor=pointer]:
+                - generic: "1"
+              - gridcell "Empty square g1" [ref=f23e166] [cursor=pointer]
+              - gridcell "White bishop on f1" [ref=f23e167] [cursor=pointer]
+              - gridcell "White king on e1" [ref=f23e168] [cursor=pointer]
+              - gridcell "White queen on d1" [ref=f23e169] [cursor=pointer]
+              - gridcell "White bishop on c1" [ref=f23e170] [cursor=pointer]
+              - gridcell "White knight on b1" [ref=f23e171] [cursor=pointer]
+              - gridcell "White rook on a1" [ref=f23e172] [cursor=pointer]
+              - gridcell "White pawn on h2" [ref=f23e173] [cursor=pointer]:
+                - generic: "2"
+              - gridcell "White pawn on g2" [ref=f23e174] [cursor=pointer]
+              - gridcell "White pawn on f2" [ref=f23e175] [cursor=pointer]
+              - gridcell "White pawn on e2" [ref=f23e176] [cursor=pointer]
+              - gridcell "White pawn on d2" [ref=f23e177] [cursor=pointer]
+              - gridcell "White pawn on c2" [ref=f23e178] [cursor=pointer]
+              - gridcell "White pawn on b2" [ref=f23e179] [cursor=pointer]
+              - gridcell "White pawn on a2" [ref=f23e180] [cursor=pointer]
+              - gridcell "White knight on h3" [ref=f23e181] [cursor=pointer]:
+                - generic: "3"
+              - gridcell "Empty square g3" [ref=f23e182] [cursor=pointer]
+              - gridcell "Empty square f3" [ref=f23e183] [cursor=pointer]
+              - gridcell "Empty square e3" [ref=f23e184] [cursor=pointer]
+              - gridcell "Empty square d3" [ref=f23e185] [cursor=pointer]
+              - gridcell "Empty square c3" [ref=f23e186] [cursor=pointer]
+              - gridcell "Empty square b3" [ref=f23e187] [cursor=pointer]
+              - gridcell "Empty square a3" [ref=f23e188] [cursor=pointer]
+              - gridcell "Empty square h4" [ref=f23e189] [cursor=pointer]:
+                - generic: "4"
+              - gridcell "Empty square g4" [ref=f23e190] [cursor=pointer]
+              - gridcell "Empty square f4" [ref=f23e191] [cursor=pointer]
+              - gridcell "Empty square e4" [ref=f23e192] [cursor=pointer]
+              - gridcell "Empty square d4" [ref=f23e193] [cursor=pointer]
+              - gridcell "Empty square c4" [ref=f23e194] [cursor=pointer]
+              - gridcell "Empty square b4" [ref=f23e195] [cursor=pointer]
+              - gridcell "Empty square a4" [ref=f23e196] [cursor=pointer]
+              - gridcell "Empty square h5" [ref=f23e197] [cursor=pointer]:
+                - generic: "5"
+              - gridcell "Empty square g5" [ref=f23e198] [cursor=pointer]
+              - gridcell "Empty square f5" [ref=f23e199] [cursor=pointer]
+              - gridcell "Empty square e5" [ref=f23e200] [cursor=pointer]
+              - gridcell "Empty square d5" [ref=f23e201] [cursor=pointer]
+              - gridcell "Empty square c5" [ref=f23e202] [cursor=pointer]
+              - gridcell "Empty square b5" [ref=f23e203] [cursor=pointer]
+              - gridcell "Empty square a5" [ref=f23e204] [cursor=pointer]
+              - gridcell "Empty square h6" [ref=f23e205] [cursor=pointer]:
+                - generic: "6"
+              - gridcell "Empty square g6" [ref=f23e206] [cursor=pointer]
+              - gridcell "Empty square f6" [ref=f23e207] [cursor=pointer]
+              - gridcell "Empty square e6" [ref=f23e208] [cursor=pointer]
+              - gridcell "Empty square d6" [ref=f23e209] [cursor=pointer]
+              - gridcell "Empty square c6" [ref=f23e210] [cursor=pointer]
+              - gridcell "Empty square b6" [ref=f23e211] [cursor=pointer]
+              - gridcell "Empty square a6" [ref=f23e212] [cursor=pointer]
+              - gridcell "Black pawn on h7" [ref=f23e213] [cursor=pointer]:
+                - generic: "7"
+              - gridcell "Black pawn on g7" [ref=f23e214] [cursor=pointer]
+              - gridcell "Black pawn on f7" [ref=f23e215] [cursor=pointer]
+              - gridcell "Black pawn on e7" [ref=f23e216] [cursor=pointer]
+              - gridcell "Black pawn on d7" [ref=f23e217] [cursor=pointer]
+              - gridcell "Black pawn on c7" [ref=f23e218] [cursor=pointer]
+              - gridcell "Black pawn on b7" [ref=f23e219] [cursor=pointer]
+              - gridcell "Black pawn on a7" [ref=f23e220] [cursor=pointer]
+              - gridcell "Black rook on h8" [ref=f23e221] [cursor=pointer]:
+                - generic: h
+                - generic: "8"
+              - gridcell "Black knight on g8" [ref=f23e222] [cursor=pointer]:
+                - generic: g
+              - gridcell "Black bishop on f8" [ref=f23e223] [cursor=pointer]:
+                - generic: f
+              - gridcell "Black king on e8" [ref=f23e224] [cursor=pointer]:
+                - generic: e
+              - gridcell "Black queen on d8" [ref=f23e225] [cursor=pointer]:
+                - generic: d
+              - gridcell "Black bishop on c8" [ref=f23e226] [cursor=pointer]:
+                - generic: c
+              - gridcell "Black knight on b8" [ref=f23e227] [cursor=pointer]:
+                - generic: b
+              - gridcell "Black rook on a8" [ref=f23e228] [cursor=pointer]:
+                - generic: a
+          - generic [ref=f23e229]:
+            - generic [ref=f23e230]: ♚
+            - generic [ref=f23e231]:
+              - generic [ref=f23e232]: Black · Human
+              - strong [ref=f23e233]: Diego C
+            - generic [ref=f23e234]: 0 Elo
+          - status [ref=f23e237]: Your move. Build the position or strike.
+        - complementary "Match intelligence" [ref=f23e238]:
+          - region "Commentator audio" [ref=f23e239]:
+            - button "Turn commentator on" [ref=f23e240] [cursor=pointer]:
+              - generic [ref=f23e246]: Commentator off
+            - paragraph [ref=f23e247]: Trained AI Default moves the knight from G1 to H3. Another piece develops toward the center.
+          - generic [ref=f23e248]:
+            - generic [ref=f23e249]:
+              - generic [ref=f23e250]: Opponent intelligence
+              - generic [ref=f23e251]: Learning model
+            - generic [ref=f23e252]:
+              - generic [ref=f23e253]: ♛
+              - generic [ref=f23e255]:
+                - generic [ref=f23e256]:
+                  - heading "Trained AI Default" [level=2] [ref=f23e257]
+                  - button "Show how Trained AI made its decision" [ref=f23e258]:
+                    - generic [ref=f23e259]: account_tree
+                - paragraph [ref=f23e260]: Playing the white pieces · learning model awaiting its first completed game
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Live model trace
+                      - strong: How Trained AI decided
+                    - generic: Cold start
+                  - paragraph: Selected g1h3 after checking memory, learned outcomes, and the safety fallback in that order.
+                  - 'region "Trained AI estimated win chance: 50%"':
+                    - generic:
+                      - generic:
+                        - strong: 50%
+                        - generic: AI win
+                    - generic:
+                      - generic:
+                        - strong: Position win forecast
+                        - generic: Untrained baseline
+                      - paragraph: No completed-game position data yet; forecast starts at 50%.
+                    - 'figure "Win forecast by move: 50 percent, 50 percent"':
+                      - generic:
+                        - 'generic "Ply 0: 50% AI win forecast"'
+                        - 'generic "Ply 1: 50% AI win forecast"'
+                      - generic:
+                        - generic: Start
+                        - strong: Forecast after every move
+                        - generic: Ply 1
+                  - generic:
+                    - generic:
+                      - strong: "0"
+                      - generic: Games
+                    - generic:
+                      - strong: "0"
+                      - generic: AI decisions
+                    - generic:
+                      - strong: "0"
+                      - generic: Strategies
+                  - generic:
+                    - generic:
+                      - generic: "01"
+                      - generic:
+                        - strong: Exact position memory
+                        - paragraph: No completed game data exists yet.
+                      - generic: missed
+                    - generic:
+                      - generic: "02"
+                      - generic:
+                        - strong: Outcome-weighted linear policy
+                        - paragraph: The first training samples arrive after a completed game.
+                      - generic: skipped
+                    - generic:
+                      - generic: "03"
+                      - generic:
+                        - strong: Cold-start safety
+                        - paragraph: Used a deterministic legal development move.
+                      - generic: selected
+                  - paragraph: Local learning only · no SDK or API call during play
+            - generic [ref=f23e261]:
+              - generic [ref=f23e262]:
+                - generic [ref=f23e263]: Last move
+                - strong [ref=f23e264]: 0s
+              - generic [ref=f23e266]:
+                - generic [ref=f23e267]: Total think
+                - strong [ref=f23e268]: 0s
+            - generic [ref=f23e269]:
+              - generic [ref=f23e270]:
+                - generic [ref=f23e271]: ✦
+                - heading "Position notes" [level=3] [ref=f23e272]
+              - generic [ref=f23e273]: Trained AI has no completed-game samples yet, so it used a minimal local development and safety fallback. No SDK or API call.
+          - generic [ref=f23e274]:
+            - generic [ref=f23e275]:
+              - generic [ref=f23e276]:
+                - generic [ref=f23e277]: Notation
+                - heading "Move history" [level=3] [ref=f23e278]
+              - generic [ref=f23e279]: 1 ply
+            - generic [ref=f23e280]:
+              - generic [ref=f23e281]: "#"
+              - generic [ref=f23e282]: White
+              - generic [ref=f23e283]: Black
+            - generic [ref=f23e285]:
+              - generic [ref=f23e286]: "1."
+              - generic [ref=f23e287]: Nh3
+          - region "How to play" [ref=f23e288]:
+            - generic [ref=f23e289]: "?"
+            - paragraph [ref=f23e290]: Select one of your pieces, then choose a highlighted destination.
+          - button "Start a new match" [ref=f23e291] [cursor=pointer]:
+            - generic [ref=f23e292]: ↻

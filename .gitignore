@@ -13,3 +13,8 @@ __pycache__/
 # mac / editor
 .DS_Store
 .vscode/
+
+# local game history
+game_logs/*.json
+trained_ai/*.json
+player_data/*.json

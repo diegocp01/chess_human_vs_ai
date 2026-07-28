@@ -1,0 +1,178 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "Kingside home" [ref=e3] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e4]: ♞
+      - generic [ref=e5]:
+        - strong [ref=e6]: Kingside
+        - generic [ref=e7]: Human × Intelligence
+    - status [ref=e9]:
+      - generic [ref=e11]: AI Model connected
+  - main [ref=e142]:
+    - region "Chess game" [ref=e143]:
+      - generic [ref=e144]:
+        - generic [ref=e145]:
+          - generic [ref=e146]: Live match
+          - heading "Diego C versus Trained AI" [level=1] [ref=e147]:
+            - generic [ref=e148]: Diego C
+            - emphasis [ref=e149]: versus
+            - generic [ref=e150]: Trained AI
+        - status [ref=e151]:
+          - generic [ref=e297]: Your turn
+          - generic [ref=e298]: White
+      - generic [ref=e155]:
+        - region "Chessboard arena" [ref=e156]:
+          - generic [ref=e157]:
+            - generic [ref=e158]: ♛
+            - generic [ref=e159]:
+              - generic [ref=e160]: Black · AI
+              - strong [ref=e161]: Trained AI
+            - generic [ref=e162]: Watching
+          - generic [ref=e165]:
+            - generic [ref=e299]:
+              - img "Interactive voxel chessboard. Drag to orbit. Scroll or pinch to zoom." [ref=e300]
+              - generic:
+                - generic:
+                  - strong: Drag
+                  - text: orbit ·
+                  - strong: Scroll
+                  - text: zoom
+                - button "Reset 3D board view" [ref=e167] [cursor=pointer]: Reset view
+            - generic:
+              - generic:
+                - grid "Chessboard from White's perspective":
+                  - gridcell "Black rook on a8":
+                    - generic: "8"
+                  - gridcell "Black knight on b8"
+                  - gridcell "Black bishop on c8"
+                  - gridcell "Black queen on d8"
+                  - gridcell "Black king on e8"
+                  - gridcell "Black bishop on f8"
+                  - gridcell "Black knight on g8"
+                  - gridcell "Black rook on h8"
+                  - gridcell "Black pawn on a7":
+                    - generic: "7"
+                  - gridcell "Black pawn on b7"
+                  - gridcell "Black pawn on c7"
+                  - gridcell "Black pawn on d7"
+                  - gridcell "Black pawn on e7"
+                  - gridcell "Black pawn on f7"
+                  - gridcell "Black pawn on g7"
+                  - gridcell "Black pawn on h7"
+                  - gridcell "Empty square a6":
+                    - generic: "6"
+                  - gridcell "Empty square b6"
+                  - gridcell "Empty square c6"
+                  - gridcell "Empty square d6"
+                  - gridcell "Empty square e6"
+                  - gridcell "Empty square f6"
+                  - gridcell "Empty square g6"
+                  - gridcell "Empty square h6"
+                  - gridcell "Empty square a5":
+                    - generic: "5"
+                  - gridcell "Empty square b5"
+                  - gridcell "Empty square c5"
+                  - gridcell "Empty square d5"
+                  - gridcell "Empty square e5"
+                  - gridcell "Empty square f5"
+                  - gridcell "Empty square g5"
+                  - gridcell "Empty square h5"
+                  - gridcell "Empty square a4":
+                    - generic: "4"
+                  - gridcell "Empty square b4"
+                  - gridcell "Empty square c4"
+                  - gridcell "Empty square d4"
+                  - gridcell "Empty square e4"
+                  - gridcell "Empty square f4"
+                  - gridcell "Empty square g4"
+                  - gridcell "Empty square h4"
+                  - gridcell "Empty square a3":
+                    - generic: "3"
+                  - gridcell "Empty square b3"
+                  - gridcell "Empty square c3"
+                  - gridcell "Empty square d3"
+                  - gridcell "Empty square e3"
+                  - gridcell "Empty square f3"
+                  - gridcell "Empty square g3"
+                  - gridcell "Empty square h3"
+                  - gridcell "White pawn on a2":
+                    - generic: "2"
+                  - gridcell "White pawn on b2"
+                  - gridcell "White pawn on c2"
+                  - gridcell "White pawn on d2"
+                  - gridcell "White pawn on e2"
+                  - gridcell "White pawn on f2"
+                  - gridcell "White pawn on g2"
+                  - gridcell "White pawn on h2"
+                  - gridcell "White rook on a1":
+                    - generic: a
+                    - generic: "1"
+                  - gridcell "White knight on b1":
+                    - generic: b
+                  - gridcell "White bishop on c1":
+                    - generic: c
+                  - gridcell "White queen on d1":
+                    - generic: d
+                  - gridcell "White king on e1":
+                    - generic: e
+                  - gridcell "White bishop on f1":
+                    - generic: f
+                  - gridcell "White knight on g1":
+                    - generic: g
+                  - gridcell "White rook on h1":
+                    - generic: h
+          - generic [ref=e235]:
+            - generic [ref=e236]: ♔
+            - generic [ref=e237]:
+              - generic [ref=e238]: White · Human
+              - strong [ref=e239]: Diego C
+            - generic [ref=e240]: 1200 Elo
+          - status [ref=e243]: Select a piece to begin your attack.
+        - complementary "Match intelligence" [ref=e244]:
+          - region [ref=e245]:
+            - button "Local match audio Commentator Off" [ref=e246] [cursor=pointer]:
+              - generic [ref=e247]: ◖
+              - generic [ref=e248]:
+                - generic [ref=e249]: Local match audio
+                - strong [ref=e250]: Commentator
+              - generic [ref=e251]: "Off"
+            - paragraph [ref=e252]: Turn on spoken, non-AI commentary for moves and captures.
+          - generic [ref=e253]:
+            - generic [ref=e254]:
+              - generic [ref=e255]: Opponent intelligence
+              - generic [ref=e256]: Local probability
+            - generic [ref=e257]:
+              - generic [ref=e258]: ♛
+              - generic [ref=e260]:
+                - heading "Trained AI" [level=2] [ref=e261]
+                - paragraph [ref=e262]: Playing the black pieces · local baseline, awaiting labeled games
+            - generic [ref=e263]:
+              - generic [ref=e264]:
+                - generic [ref=e265]: Last move
+                - strong [ref=e266]: 0s
+              - generic [ref=e268]:
+                - generic [ref=e269]: Total think
+                - strong [ref=e270]: 0s
+            - generic [ref=e271]:
+              - generic [ref=e272]:
+                - generic [ref=e273]: ✦
+                - heading "Position notes" [level=3] [ref=e274]
+              - generic [ref=e275]: The opponent’s analysis will appear after its first move.
+          - generic [ref=e276]:
+            - generic [ref=e277]:
+              - generic [ref=e278]:
+                - generic [ref=e279]: Notation
+                - heading "Move history" [level=3] [ref=e280]
+              - generic [ref=e281]: 0 ply
+            - generic [ref=e282]:
+              - generic [ref=e283]: "#"
+              - generic [ref=e284]: White
+              - generic [ref=e285]: Black
+            - generic [ref=e302]:
+              - generic [ref=e303]: ♘
+              - paragraph [ref=e304]: Your match notation will appear here.
+          - region "How to play" [ref=e290]:
+            - generic [ref=e291]: "?"
+            - paragraph [ref=e292]: Select one of your pieces, then choose a highlighted destination.
+          - button "Start a new match" [ref=e293] [cursor=pointer]:
+            - generic [ref=e294]: ↻

@@ -1,0 +1,177 @@
+- generic [active] [ref=f12e1]:
+  - banner [ref=f12e2]:
+    - link "Kingside home" [ref=f12e3] [cursor=pointer]:
+      - /url: /
+      - generic [ref=f12e4]: ♞
+      - generic [ref=f12e5]:
+        - strong [ref=f12e6]: Kingside
+        - generic [ref=f12e7]: Human × Intelligence
+    - status [ref=f12e9]:
+      - generic [ref=f12e11]: AI Model connected
+  - main [ref=f12e169]:
+    - region "Chess game" [ref=f12e170]:
+      - generic [ref=f12e171]:
+        - generic [ref=f12e172]:
+          - generic [ref=f12e173]: Live match
+          - heading "Diego C versus GPT-5.6-Sol" [level=1] [ref=f12e174]:
+            - generic [ref=f12e175]: Diego C
+            - emphasis [ref=f12e176]: versus
+            - generic [ref=f12e177]: GPT-5.6-Sol
+        - status [ref=f12e178]:
+          - generic [ref=f12e180]: AI's turn
+          - generic [ref=f12e181]: White
+      - generic [ref=f12e182]:
+        - region "Chessboard arena" [ref=f12e183]:
+          - generic [ref=f12e184]:
+            - generic [ref=f12e185]: ♕
+            - generic [ref=f12e186]:
+              - generic [ref=f12e187]: White · AI
+              - strong [ref=f12e188]: GPT-5.6-Sol
+            - generic [ref=f12e189]: Calculating
+          - generic [ref=f12e192]:
+            - generic [ref=f12e194]:
+              - img "Interactive voxel chessboard. Drag to orbit. Scroll or pinch to zoom." [ref=f12e195]
+              - generic:
+                - generic:
+                  - strong: Drag
+                  - text: orbit ·
+                  - strong: Scroll
+                  - text: zoom
+                - button "Reset 3D board view" [ref=f12e197] [cursor=pointer]: Reset view
+            - generic:
+              - generic:
+                - grid "Chessboard from Black's perspective":
+                  - gridcell "White rook on h1":
+                    - generic: "1"
+                  - gridcell "White knight on g1"
+                  - gridcell "White bishop on f1"
+                  - gridcell "White king on e1"
+                  - gridcell "White queen on d1"
+                  - gridcell "White bishop on c1"
+                  - gridcell "White knight on b1"
+                  - gridcell "White rook on a1"
+                  - gridcell "White pawn on h2":
+                    - generic: "2"
+                  - gridcell "White pawn on g2"
+                  - gridcell "White pawn on f2"
+                  - gridcell "White pawn on e2"
+                  - gridcell "White pawn on d2"
+                  - gridcell "White pawn on c2"
+                  - gridcell "White pawn on b2"
+                  - gridcell "White pawn on a2"
+                  - gridcell "Empty square h3":
+                    - generic: "3"
+                  - gridcell "Empty square g3"
+                  - gridcell "Empty square f3"
+                  - gridcell "Empty square e3"
+                  - gridcell "Empty square d3"
+                  - gridcell "Empty square c3"
+                  - gridcell "Empty square b3"
+                  - gridcell "Empty square a3"
+                  - gridcell "Empty square h4":
+                    - generic: "4"
+                  - gridcell "Empty square g4"
+                  - gridcell "Empty square f4"
+                  - gridcell "Empty square e4"
+                  - gridcell "Empty square d4"
+                  - gridcell "Empty square c4"
+                  - gridcell "Empty square b4"
+                  - gridcell "Empty square a4"
+                  - gridcell "Empty square h5":
+                    - generic: "5"
+                  - gridcell "Empty square g5"
+                  - gridcell "Empty square f5"
+                  - gridcell "Empty square e5"
+                  - gridcell "Empty square d5"
+                  - gridcell "Empty square c5"
+                  - gridcell "Empty square b5"
+                  - gridcell "Empty square a5"
+                  - gridcell "Empty square h6":
+                    - generic: "6"
+                  - gridcell "Empty square g6"
+                  - gridcell "Empty square f6"
+                  - gridcell "Empty square e6"
+                  - gridcell "Empty square d6"
+                  - gridcell "Empty square c6"
+                  - gridcell "Empty square b6"
+                  - gridcell "Empty square a6"
+                  - gridcell "Black pawn on h7":
+                    - generic: "7"
+                  - gridcell "Black pawn on g7"
+                  - gridcell "Black pawn on f7"
+                  - gridcell "Black pawn on e7"
+                  - gridcell "Black pawn on d7"
+                  - gridcell "Black pawn on c7"
+                  - gridcell "Black pawn on b7"
+                  - gridcell "Black pawn on a7"
+                  - gridcell "Black rook on h8":
+                    - generic: h
+                    - generic: "8"
+                  - gridcell "Black knight on g8":
+                    - generic: g
+                  - gridcell "Black bishop on f8":
+                    - generic: f
+                  - gridcell "Black king on e8":
+                    - generic: e
+                  - gridcell "Black queen on d8":
+                    - generic: d
+                  - gridcell "Black bishop on c8":
+                    - generic: c
+                  - gridcell "Black knight on b8":
+                    - generic: b
+                  - gridcell "Black rook on a8":
+                    - generic: a
+          - generic [ref=f12e198]:
+            - generic [ref=f12e199]: ♚
+            - generic [ref=f12e200]:
+              - generic [ref=f12e201]: Black · Human
+              - strong [ref=f12e202]: Diego C
+            - generic [ref=f12e203]: 0 Elo
+          - status [ref=f12e206]: The draw gave you Black. The AI opens as White.
+        - complementary "Match intelligence" [ref=f12e207]:
+          - region "Commentator audio" [ref=f12e208]:
+            - button "Turn commentator on" [ref=f12e209] [cursor=pointer]:
+              - generic [ref=f12e215]: Commentator off
+            - paragraph [ref=f12e216]: Turn on spoken, non-AI commentary for moves and captures.
+          - generic [ref=f12e217]:
+            - generic [ref=f12e218]:
+              - generic [ref=f12e219]: Opponent intelligence
+              - generic [ref=f12e220]: Codex SDK
+            - generic [ref=f12e221]:
+              - generic [ref=f12e222]: ♛
+              - generic [ref=f12e224]:
+                - heading "GPT-5.6-Sol" [level=2] [ref=f12e226]
+                - paragraph [ref=f12e227]: Playing the white pieces
+            - status [ref=f12e228]:
+              - generic [ref=f12e231]: Calculating position
+              - generic [ref=f12e232]: 0.5s
+            - generic [ref=f12e233]:
+              - generic [ref=f12e234]:
+                - generic [ref=f12e235]: Last move
+                - strong [ref=f12e236]: 0s
+              - generic [ref=f12e238]:
+                - generic [ref=f12e239]: Total think
+                - strong [ref=f12e240]: 0s
+            - generic [ref=f12e241]:
+              - generic [ref=f12e242]:
+                - generic [ref=f12e243]: ✦
+                - heading "Position notes" [level=3] [ref=f12e244]
+              - generic [ref=f12e245]: The opponent’s analysis will appear after its first move.
+          - generic [ref=f12e246]:
+            - generic [ref=f12e247]:
+              - generic [ref=f12e248]:
+                - generic [ref=f12e249]: Notation
+                - heading "Move history" [level=3] [ref=f12e250]
+              - generic [ref=f12e251]: 0 ply
+            - generic [ref=f12e252]:
+              - generic [ref=f12e253]: "#"
+              - generic [ref=f12e254]: White
+              - generic [ref=f12e255]: Black
+            - generic [ref=f12e257]:
+              - generic [ref=f12e258]: ♘
+              - paragraph [ref=f12e259]: Your match notation will appear here.
+          - region "How to play" [ref=f12e260]:
+            - generic [ref=f12e261]: "?"
+            - paragraph [ref=f12e262]: Select one of your pieces, then choose a highlighted destination.
+          - button "Start a new match" [ref=f12e263] [cursor=pointer]:
+            - generic [ref=f12e264]: ↻

@@ -1,0 +1,171 @@
+- generic [active] [ref=f16e1]:
+  - banner [ref=f16e2]:
+    - link "Kingside home" [ref=f16e3] [cursor=pointer]:
+      - /url: /
+      - generic [ref=f16e4]: ♞
+      - generic [ref=f16e5]:
+        - strong [ref=f16e6]: Kingside
+        - generic [ref=f16e7]: Human × Intelligence
+    - status [ref=f16e9]:
+      - generic [ref=f16e11]: AI Model disconnected
+  - main
+  - dialog [ref=f16e13]:
+    - generic [ref=f16e14]:
+      - generic [ref=f16e15]:
+        - generic [ref=f16e16]:
+          - generic [ref=f16e17]: crown
+          - text: Local chess laboratory
+        - generic [ref=f16e19]:
+          - generic [ref=f16e20]: Human intuition meets machine depth
+          - heading "Choose your challenger." [level=2] [ref=f16e21]
+          - paragraph [ref=f16e22]: Play a full game against an API model, use your Codex subscription, or challenge a local opponent trained on earlier matches.
+      - generic "Game features" [ref=f16e23]:
+        - generic [ref=f16e24]:
+          - generic [ref=f16e25]: dns
+          - generic [ref=f16e26]:
+            - strong [ref=f16e27]: "4"
+            - generic [ref=f16e28]: AI providers
+        - generic [ref=f16e29]:
+          - generic [ref=f16e30]: menu_book
+          - generic [ref=f16e31]:
+            - strong [ref=f16e32]: Live
+            - generic [ref=f16e33]: Model catalog
+        - generic [ref=f16e34]:
+          - generic [ref=f16e35]: chess_pawn
+          - generic [ref=f16e36]:
+            - strong [ref=f16e37]: Local
+            - generic [ref=f16e38]: Game state
+      - generic [ref=f16e39]:
+        - generic [ref=f16e40]: check
+        - generic [ref=f16e42]:
+          - strong [ref=f16e43]: Your Codex access
+          - generic [ref=f16e44]: Connected through your Codex sign-in
+          - generic [ref=f16e45]: Active ChatGPT subscription
+    - generic [ref=f16e46]:
+      - generic [ref=f16e47]:
+        - generic [ref=f16e48]:
+          - generic [ref=f16e49]:
+            - generic [ref=f16e50]: Match configuration
+            - heading "Enter the arena" [level=3] [ref=f16e51]
+          - button "Open results dashboard" [ref=f16e52] [cursor=pointer]:
+            - generic [ref=f16e53]: monitoring
+            - generic [ref=f16e54]:
+              - strong [ref=f16e55]: Results
+              - generic [ref=f16e56]: 0 games · 0 wins
+            - generic [ref=f16e57]: arrow_outward
+        - paragraph [ref=f16e58]: Your side is drawn at random. Your selected model commands the opposite army.
+      - generic [ref=f16e59]:
+        - generic [ref=f16e60]:
+          - generic [ref=f16e61]: person
+          - generic [ref=f16e62]:
+            - strong [ref=f16e63]: Player profile
+            - generic [ref=f16e64]: Your local name and permanent Elo
+        - generic [ref=f16e65]:
+          - generic [ref=f16e66]:
+            - combobox "Local player profile" [ref=f16e67] [cursor=pointer]:
+              - option "Diego C · 0 Elo" [selected]
+            - generic: ⌄
+          - button "New player" [ref=f16e68] [cursor=pointer]
+        - status [ref=f16e69]:
+          - generic [ref=f16e70]: shield_person
+          - generic [ref=f16e71]: Diego C · 0 Elo · 0 rated games. Username is permanent; no password yet.
+      - generic [ref=f16e72]:
+        - generic [ref=f16e73]:
+          - generic [ref=f16e74]: "01"
+          - generic [ref=f16e75]:
+            - strong [ref=f16e76]: Connection
+            - generic [ref=f16e77]: Choose how your opponent is powered
+        - combobox [ref=f16e78]
+        - radiogroup "AI connection" [ref=f16e79]:
+          - radio "OpenAI API key" [ref=f16e80] [cursor=pointer]:
+            - generic [ref=f16e82]:
+              - strong [ref=f16e83]: OpenAI
+              - generic [ref=f16e84]: API key
+            - generic [ref=f16e85]: check
+          - radio "Anthropic API key" [ref=f16e86] [cursor=pointer]:
+            - generic [ref=f16e87]: AI
+            - generic [ref=f16e88]:
+              - strong [ref=f16e89]: Anthropic
+              - generic [ref=f16e90]: API key
+            - generic [ref=f16e91]: check
+          - radio "Codex Subscription" [checked] [ref=f16e92] [cursor=pointer]:
+            - generic [ref=f16e93]: </>
+            - generic [ref=f16e94]:
+              - strong [ref=f16e95]: Codex
+              - generic [ref=f16e96]: Subscription
+            - generic [ref=f16e97]: check
+          - radio "Trained AI Learning model" [ref=f16e98] [cursor=pointer]:
+            - generic [ref=f16e99]: neurology
+            - generic [ref=f16e100]:
+              - strong [ref=f16e101]: Trained AI
+              - generic [ref=f16e102]: Learning model
+            - generic [ref=f16e103]: check
+        - status [ref=f16e104]:
+          - generic [ref=f16e105]: check_circle
+          - generic [ref=f16e106]: Uses your existing Codex ChatGPT sign-in. Your previous games and Coach profile are not shared with the opponent.
+      - generic [ref=f16e107]:
+        - generic [ref=f16e108]:
+          - generic [ref=f16e109]: "02"
+          - generic [ref=f16e110]:
+            - strong [ref=f16e111]: Opponent model
+            - generic [ref=f16e112]: Pick the mind across the board
+          - generic [ref=f16e113]:
+            - generic [ref=f16e114]: star
+            - text: Recommended
+        - generic [ref=f16e115]:
+          - combobox "02 Opponent model Pick the mind across the board Recommended" [disabled] [ref=f16e116]:
+            - option "Loading models..." [selected]
+          - generic: expand_more
+      - generic [ref=f16e117]:
+        - generic [ref=f16e118]:
+          - generic [ref=f16e119]: "03"
+          - generic [ref=f16e120]:
+            - strong [ref=f16e121]: Match experience
+            - generic [ref=f16e122]: Choose how the pieces meet on the board
+        - generic [ref=f16e123]:
+          - generic [ref=f16e124]:
+            - generic [ref=f16e125]: shuffle
+            - generic [ref=f16e126]:
+              - strong [ref=f16e127]: Your color is randomized
+              - generic [ref=f16e128]: White or Black is revealed when the match begins
+            - generic [ref=f16e129]: 50 / 50
+            - generic [ref=f16e130]: check
+          - group "Choose your board" [ref=f16e131]:
+            - generic [ref=f16e133]:
+              - generic [ref=f16e134] [cursor=pointer]:
+                - radio "Classic Detailed 2D board · keyboard ready 2D"
+                - generic [ref=f16e135]:
+                  - generic [ref=f16e136]: grid_view
+                  - generic [ref=f16e137]:
+                    - strong [ref=f16e138]: Classic
+                    - generic [ref=f16e139]: Detailed 2D board · keyboard ready
+                  - generic [ref=f16e140]: 2D
+              - generic [ref=f16e141] [cursor=pointer]:
+                - radio "Voxel 3D board Drag to orbit · scroll or pinch to zoom 3D" [checked]
+                - generic [ref=f16e142]:
+                  - generic [ref=f16e143]: deployed_code
+                  - generic [ref=f16e144]:
+                    - strong [ref=f16e145]: Voxel 3D board
+                    - generic [ref=f16e146]: Drag to orbit · scroll or pinch to zoom
+                  - generic [ref=f16e147]: 3D
+      - generic "Match sides" [ref=f16e148]:
+        - generic [ref=f16e149]:
+          - generic [ref=f16e150]: "?"
+          - generic [ref=f16e151]:
+            - generic [ref=f16e152]: Diego C
+            - strong [ref=f16e153]: 0 Elo
+        - generic [ref=f16e154]: VS
+        - generic [ref=f16e156]:
+          - generic [ref=f16e157]:
+            - generic [ref=f16e158]: AI
+            - strong [ref=f16e159]: Opposite
+          - generic [ref=f16e160]: "?"
+      - button "Start the match The board awaits." [disabled] [ref=f16e161]:
+        - generic [ref=f16e162]: crown
+        - generic [ref=f16e163]:
+          - strong [ref=f16e164]: Start the match
+          - generic [ref=f16e165]: The board awaits.
+        - generic [ref=f16e166]: arrow_forward
+      - paragraph [ref=f16e167]:
+        - generic [ref=f16e168]: shield_lock
+        - text: Private by design. Local game state. No data leaves your environment.

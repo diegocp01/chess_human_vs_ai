@@ -1,0 +1,69 @@
+- generic [ref=f26e1]:
+  - banner [ref=f26e2]:
+    - status [ref=f26e4]:
+      - generic: AI Model connected
+  - main
+  - dialog [ref=f26e7]:
+    - generic [ref=f26e8]:
+      - generic [ref=f26e10]:
+        - generic [ref=f26e11]:
+          - heading "New match" [level=3] [ref=f26e12]
+          - generic [ref=f26e13]: Choose an opponent and play.
+        - button "Open results dashboard" [ref=f26e14] [cursor=pointer]:
+          - generic [ref=f26e15]: monitoring
+      - generic [ref=f26e16]:
+        - generic [ref=f26e17]: Player
+        - generic [ref=f26e18]:
+          - generic [ref=f26e19]:
+            - combobox "Local player profile" [ref=f26e20] [cursor=pointer]:
+              - option "Diego C · 0 Elo" [selected]
+            - generic: ⌄
+          - button "New" [ref=f26e21] [cursor=pointer]
+      - generic [ref=f26e22]:
+        - generic [ref=f26e23]: Opponent
+        - combobox [ref=f26e24]
+        - radiogroup "AI connection" [ref=f26e25]:
+          - radio [ref=f26e26] [cursor=pointer]:
+            - strong [ref=f26e29]: OpenAI
+            - generic [ref=f26e30]: check
+          - radio [ref=f26e31] [cursor=pointer]:
+            - generic [ref=f26e32]: AI
+            - strong [ref=f26e34]: Anthropic
+            - generic [ref=f26e35]: check
+          - radio [ref=f26e36] [cursor=pointer]:
+            - generic [ref=f26e37]: </>
+            - strong [ref=f26e39]: Codex
+            - generic [ref=f26e40]: check
+          - radio [checked] [active] [ref=f26e41] [cursor=pointer]:
+            - generic [ref=f26e42]: neurology
+            - strong [ref=f26e44]: Trained
+            - generic [ref=f26e45]: check
+      - generic [ref=f26e46]:
+        - generic [ref=f26e47]: Model
+        - generic [ref=f26e48]:
+          - combobox "Model" [ref=f26e49] [cursor=pointer]:
+            - option "Trained AI Default" [selected]
+            - option "Trust Value — Coming soon" [disabled]
+          - generic: expand_more
+      - generic [ref=f26e50]:
+        - generic [ref=f26e51]:
+          - generic [ref=f26e52]: Board
+          - generic [ref=f26e53]:
+            - generic [ref=f26e54]: shuffle
+            - text: Random color
+        - group "Choose your board" [ref=f26e56]:
+          - generic [ref=f26e58]:
+            - generic [ref=f26e59] [cursor=pointer]:
+              - radio "Classic 2D"
+              - generic [ref=f26e60]:
+                - generic [ref=f26e61]: grid_view
+                - strong [ref=f26e63]: Classic
+                - generic [ref=f26e64]: 2D
+            - generic [ref=f26e65] [cursor=pointer]:
+              - radio "Voxel 3D" [checked]
+              - generic [ref=f26e66]:
+                - generic [ref=f26e67]: deployed_code
+                - strong [ref=f26e69]: Voxel
+                - generic [ref=f26e70]: 3D
+      - button "Start match" [ref=f26e71] [cursor=pointer]:
+        - generic [ref=f26e73]: arrow_forward

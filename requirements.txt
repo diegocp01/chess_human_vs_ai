@@ -1,4 +1,5 @@
 openai
+openai-codex>=0.144.4
 pydantic
 python-dotenv
 anthropic
