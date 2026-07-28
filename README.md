@@ -156,6 +156,10 @@ npm test
 - Deep walnut board palette shared by the Classic and Voxel boards
 - Captured-material rails showing each side's takes and the point advantage
 - Board sized to the viewport height so a full match fits without scrolling
+- Resign, take back your last move, claim a draw the position already allows,
+  and flip the board to either side
+- Click any move in the notation panel to review the position after it, then
+  click it again or press Escape to return to the live game
 - Legal destination and capture indicators
 - Persistent last-move and check highlighting
 - Live AI thinking timer and reasoning notes

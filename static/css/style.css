@@ -3431,6 +3431,129 @@ a:focus-visible {
     color: #dfc49b;
 }
 
+/* Each half-move is a button so its position can be reviewed. */
+.move-cell {
+    padding: 3px 6px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: background 140ms ease, border-color 140ms ease;
+}
+
+.move-cell:hover {
+    border-color: var(--line-strong);
+    background: var(--surface-hover);
+}
+
+.move-cell.reviewing {
+    border-color: rgba(226, 183, 104, 0.55);
+    color: #1a1408;
+    background: var(--human);
+}
+
+/* Mid-game controls */
+.match-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.btn-match-action {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--text-soft);
+    background: var(--surface-soft);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 700;
+    transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.btn-match-action .material-symbols-rounded {
+    font-size: 1rem;
+}
+
+.btn-match-action:hover:not(:disabled) {
+    border-color: var(--line-strong);
+    color: var(--text);
+    background: var(--surface-hover);
+}
+
+.btn-match-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.btn-resign:hover:not(:disabled) {
+    border-color: rgba(255, 115, 115, 0.5);
+    color: #ffb3b3;
+    background: var(--danger-soft);
+}
+
+.game-container.reviewing-history .board-frame,
+.game-container.reviewing-history .voxel-board-shell {
+    outline: 2px solid rgba(226, 183, 104, 0.55);
+    outline-offset: 3px;
+}
+
+/* Confirmation dialog */
+.confirm-content {
+    max-width: 380px;
+    text-align: left;
+}
+
+.confirm-copy {
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    line-height: 1.55;
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 20px;
+}
+
+.btn-confirm-cancel,
+.btn-confirm-accept {
+    min-height: 38px;
+    padding: 0 15px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.btn-confirm-cancel {
+    color: var(--text-soft);
+    background: var(--surface-soft);
+}
+
+.btn-confirm-accept {
+    border-color: rgba(255, 115, 115, 0.45);
+    color: #ffc2c2;
+    background: var(--danger-soft);
+}
+
+.btn-confirm-accept:hover {
+    border-color: rgba(255, 115, 115, 0.7);
+    background: rgba(255, 115, 115, 0.2);
+}
+
 .quick-tip {
     display: flex;
     align-items: center;
