@@ -47,6 +47,7 @@ const railHumanNameEl = document.getElementById('rail-human-name');
 const railHumanRatingEl = document.getElementById('rail-human-rating');
 const railAiCapturesEl = document.getElementById('rail-ai-captures');
 const railHumanCapturesEl = document.getElementById('rail-human-captures');
+const btnRetryAi = document.getElementById('btn-retry-ai');
 const btnResign = document.getElementById('btn-resign');
 const btnTakeback = document.getElementById('btn-takeback');
 const btnFlipBoard = document.getElementById('btn-flip-board');
@@ -334,6 +335,7 @@ chessBoard.addEventListener('focusout', () => {
     }, 0);
 });
 chessBoard.addEventListener('pointerdown', handleBoardPointerDown);
+btnRetryAi?.addEventListener('click', retryAIMove);
 btnResign?.addEventListener('click', () => askConfirmation({
     title: 'Resign this match?',
     copy: 'The game is recorded as a loss and your rating is updated.',
@@ -1342,6 +1344,7 @@ async function startGame() {
 
         gameState = data.game_state;
         setAIConnectionStatus(true);
+        hideAIRetry();
         modalOverlay.classList.add('hidden');
         gameContainer.classList.remove('hidden');
         document.body.classList.remove('modal-open');
@@ -2275,8 +2278,45 @@ function stopTimer() {
     }
 }
 
+// A provider call can fail for reasons that pass on their own — a rate limit,
+// a dropped connection, an expired Codex session. Without a way to ask again
+// the match is stuck on the opponent's turn: you cannot move, and a takeback
+// needs it to be your turn, so resigning is the only way out.
+function showAIRetry(message) {
+    if (!btnRetryAi) return;
+    gameStatus.textContent = message;
+    btnRetryAi.classList.remove('hidden');
+    btnRetryAi.disabled = false;
+    // The board is sized to the viewport, so on a short screen this lands
+    // below the fold, where a stuck player would never find it. Scroll to it
+    // only when it is genuinely out of view.
+    // Scrolled instantly rather than smoothly: smooth scrolling is silently
+    // ignored in some engines, and a recovery control that quietly fails to
+    // appear is worse than one that arrives without animation.
+    const rect = btnRetryAi.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+        btnRetryAi.scrollIntoView({ block: 'center', behavior: 'auto' });
+    }
+}
+
+function hideAIRetry() {
+    btnRetryAi?.classList.add('hidden');
+}
+
+async function retryAIMove() {
+    if (!gameState || gameState.game_over || isWaitingForAI) return;
+    if (gameState.current_turn !== gameState.ai_color) {
+        // The turn moved on underneath us; nothing to ask for.
+        hideAIRetry();
+        return;
+    }
+    hideAIRetry();
+    await getAIMove();
+}
+
 async function getAIMove() {
     const previousState = gameState;
+    hideAIRetry();
     isWaitingForAI = true;
     updateVoxelInteractivity();
     aiThinkingEl.classList.remove('hidden');
@@ -2312,7 +2352,7 @@ async function getAIMove() {
         } else {
             setAIConnectionStatus(false);
             console.error('AI move error:', data.error);
-            gameStatus.textContent = 'AI Error: ' + data.error;
+            showAIRetry(`The opponent could not move: ${data.error}`);
             railAiStateEl.textContent = 'Move failed';
         }
         chessBoard.setAttribute('aria-busy', 'false');
@@ -2330,7 +2370,7 @@ async function getAIMove() {
         isWaitingForAI = false;
         updateVoxelInteractivity();
         updateMatchActions();
-        gameStatus.textContent = 'AI provider error - check console';
+        showAIRetry('Could not reach the opponent. Check the console for details.');
         railAiStateEl.textContent = 'Connection error';
     }
 }
@@ -2882,6 +2922,8 @@ function updateUI() {
 // Enables the mid-game controls only while they can actually be used.
 function updateMatchActions() {
     const live = Boolean(gameState) && !gameState.game_over;
+    // Resigning or finishing the game retires the stuck-turn offer with it.
+    if (!live || gameState.current_turn !== gameState.ai_color) hideAIRetry();
     if (btnResign) btnResign.disabled = !live;
     if (btnTakeback) {
         btnTakeback.disabled = !live || !gameState.can_takeback || isWaitingForAI;

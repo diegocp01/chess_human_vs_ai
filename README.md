@@ -187,6 +187,8 @@ npm test
 - Legal destination and capture indicators
 - Persistent last-move and check highlighting
 - Live AI thinking timer and reasoning notes
+- If a provider call fails, the reason is shown with a control to ask the
+  opponent again, so a rate limit or dropped connection does not end the match
 - SAN move history
 - Reloading or reopening the tab resumes the match in progress, including your
   board choice; if the reload interrupted the opponent's turn, it plays on
