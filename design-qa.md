@@ -1,73 +1,69 @@
-# Kingside setup design QA
+# Voxel rook design QA
 
 ## Evidence
 
-- Source visual truth: `/Users/diegocabezas2/Downloads/ChatGPT Image Jul 27, 2026, 06_43_38 PM.png`
-- Rendered implementation: `/Users/diegocabezas2/Documents/code_projects/human_ai_chess/output/kingside-setup-final.png`
-- Full-view comparison: `/Users/diegocabezas2/Documents/code_projects/human_ai_chess/output/design-qa-comparison-final.png`
-- Focused controls comparison: `/Users/diegocabezas2/Documents/code_projects/human_ai_chess/output/design-qa-controls-focus.png`
-- Route/state: `http://127.0.0.1:5001/`, setup dialog open, saved local profile selected, Codex selected, GPT-5.6-Sol selected, Voxel 3D selected
-- Requested viewport: 1375 × 1144 CSS px
-- Browser-rendered viewport: 1250 × 1040 CSS px at device density 1
-- Source pixels: 1375 × 1144
-- Implementation pixels: 1250 × 1040
-- Density normalization: the source was proportionally normalized to 1250 × 1040 before full-view comparison. The controls focus comparison normalized both right-side regions to 750 × 1040.
+- Source visual truth: `output/rook-reference.png`
+- Rendered implementation: `output/rook-design-qa-full.png`
+- Focused side-by-side comparison: `output/rook-design-qa-comparison.png`
+- Route/state: `http://127.0.0.1:5002/`, active Voxel 3D match, Trained AI opponent, opening position
+- Browser viewport: 1200 × 1000 CSS px at device density 1
+- Source pixels: 1000 × 990 (proportionally reduced from the supplied 1748 × 1730 screenshot)
+- Implementation pixels: 1200 × 1000
+- Focus normalization: the reference's hero rook and the implementation's black a8 rook were isolated, enlarged, and padded to equal-height comparison panels. This preserves the expected gameplay-distance rendering instead of pretending the board piece is an isolated product render.
 
 ## Findings
 
 No actionable P0, P1, or P2 findings remain.
 
-- Fonts and typography: Newsreader recreates the high-contrast editorial display face; Inter and IBM Plex Mono preserve the reference hierarchy for interface and technical copy. Heading weight, tracking, uppercase labels, line height, and wrapping are visually aligned.
-- Spacing and layout rhythm: the 40/60 split, framed viewport, numbered timeline, control rhythm, rounded cards, matchup rail, and CTA placement match the reference. The player profile, fourth provider, and two board choices increase control density intentionally while remaining inside the frame without clipped persistent controls.
-- Colors and visual tokens: the implementation matches the near-black, antique-gold, warm-ivory, and restrained green status palette. Border opacity, gold glow, selected states, and low-elevation shadows follow the reference.
-- Image quality and asset fidelity: the generated black king uses the same subject, crop, radial geometry, gold rim light, and dark photographic treatment. It is a real raster asset rather than CSS or text art and is sharp at the rendered size.
-- Copy and content: the reference copy is preserved where applicable. Product-required copy is added for the permanent local profile, Trained AI, Classic mode, and local-history privacy boundary.
-- Interaction and accessibility: OpenAI/Codex provider switching, provider status copy, Classic/Voxel selection, model discovery, and the enabled start state were tested in the browser. Semantic radio groups, labels, visible focus styles, and status regions remain intact.
-- Console check: no browser warnings or errors in the verified state.
+- Silhouette: the gameplay rook has the reference's broad stepped footing, narrow tapered tower, expanded collar, and deep castle crown.
+- Crenellations: six substantial radial merlons remain readable from the board's freely orbiting camera instead of collapsing into a generic four-corner icon.
+- Surface detail: the rook now uses the native micro-voxel density used by the pawn, knight, bishop, queen, and king. Interior voxels are culled after construction to keep the added exterior detail economical.
+- Materials: light and dark teams inherit the existing ivory/black stone palettes, while the foundation and crown course use the existing antique-gold accent material.
+- Proportion: the new sculpt keeps the established Staunton height ratio (`rook = 0.68 × king`) requested for realistic relative piece heights. The reference's tower is therefore translated into the app's set proportions rather than copied at queen height.
+- Gameplay readability: both colors remain distinguishable from adjacent pawns and knights at the normal camera distance, and the crown remains recognizable after zooming and orbiting.
+- Console/render check: the active match rendered without browser console errors.
 
 ## Intentional deviations
 
-- The reference shows three providers; the implementation keeps the required fourth Trained AI provider.
-- The reference omits player identity; the implementation keeps the required local username and permanent Elo selector.
-- The reference shows only a voxel row; the implementation keeps both Classic and Voxel 3D choices.
-- The source and implementation could not be captured at identical CSS dimensions because the connected in-app browser capped the rendered viewport at 1250 × 1040. The source was normalized proportionally, preserving the same aspect ratio.
+- The reference is a studio-lit, isolated black-stone concept sheet; the implementation must render both player colors on a live wooden board.
+- The concept rook is exaggerated vertically. The implementation keeps the real-world relative height system already applied to the full chess set.
+- Antique-gold accents are supplied by the app's shared material system, so their hue and reflectance match the other pieces rather than the reference photograph exactly.
 
 ## Comparison history
 
 ### Pass 1
 
-- [P2] Hero image showed a visible rectangular boundary against the left panel.
-  - Fix: expanded the asset edge-to-edge within the hero region and added a vertical mask so the image blends into the panel.
-- [P2] Opponent-model helper copy aligned horizontally with the section title.
-  - Fix: restored the title/helper column layout with a dedicated flex rule while retaining the Recommended badge.
+- [P2] The previous rook used the old coarse voxel blueprint and did not match the finer voxel density of the rest of the rebuilt set.
+  - Fix: rebuilt the rook natively at micro-voxel resolution and added it to the native blueprint list.
+- [P2] The previous crown was a shallow square rim with small edge blocks.
+  - Fix: replaced it with six radial 5 × 5 merlons, three voxels tall, leaving deep readable notches.
+- [P2] The previous body was a plain box with minimal hierarchy.
+  - Fix: introduced a stepped gold-footed plinth, tapered/fluted tower, turned collar rings, and a gold crown course.
 
 ### Pass 2
 
-- Post-fix evidence: `output/design-qa-comparison-final.png` and `output/design-qa-controls-focus.png`.
-- The hero now blends into the surrounding surface, the model title/helper hierarchy matches the other numbered steps, and no P0/P1/P2 mismatch remains.
-
-## Focused region evidence
-
-The right-side controls were compared separately because provider labels, model copy, selected-state borders, board-mode descriptions, matchup labels, and CTA typography were too small to judge confidently in the full 2500-pixel-wide comparison. The focused comparison confirms readable hierarchy, aligned gold timeline markers, consistent card radii, and reference-matched selected states.
+- Post-fix evidence: `output/rook-design-qa-full.png` and `output/rook-design-qa-comparison.png`.
+- The reference characteristics survive at gameplay scale, the rook respects the existing set's height system, and no P0/P1/P2 mismatch remains.
 
 ## Primary interactions tested
 
-- Switch from Codex to OpenAI and verify the hidden provider value, selected card, and provider note update.
-- Switch back to Codex and verify GPT-5.6-Sol is selected.
-- Select Classic, return to Voxel 3D, and verify the checked board-mode value.
-- Verify the Start the match control is enabled for the existing local profile.
+- Start a Voxel 3D match with the local Trained AI provider.
+- Orbit and zoom the WebGL board.
+- Confirm the light and dark rooks render in their correct starting squares.
+- Confirm adjacent pieces, board controls, and the match sidebar remain usable.
 
 ## Implementation checklist
 
-- [x] Match the reference frame, split, palette, typography, and visual hierarchy.
-- [x] Replace the text chess-piece hero with a high-resolution black-king asset.
-- [x] Preserve player profile, four providers, model discovery, and both board modes.
-- [x] Verify controls and runtime model state.
-- [x] Run the application test suite.
-- [x] Compare normalized full-view and focused-region evidence.
+- [x] Match the stepped fortress base and tapered tower.
+- [x] Add refined collars and antique-gold accent courses.
+- [x] Build six deep, radial crenellations.
+- [x] Preserve the established real-world height ratio.
+- [x] Use native micro-voxel density and interior culling.
+- [x] Verify the result in the live WebGL board.
+- [x] Compare the source and implementation in one focused image.
 
 ## Follow-up polish
 
-- P3: a future dedicated 1375 × 1144 browser capture could remove the remaining evidence-only viewport normalization note; it does not affect the responsive implementation.
+- P3: a future dedicated piece-inspection mode could show the rook at studio scale without changing its gameplay dimensions.
 
 final result: passed

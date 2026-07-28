@@ -173,21 +173,83 @@ function buildPawnVoxels() {
 
 function buildRookVoxels() {
     const voxels = new Map();
-    addCommonBase(voxels);
-    addBox(voxels, 3, -2, 2, -2, 2);
-    addBox(voxels, 4, -2, 2, -2, 2);
-    addBox(voxels, 5, -2, 2, -2, 2);
-    addBox(voxels, 6, -2, 2, -2, 2);
-    addDisk(voxels, 7, 2.65, true);
-    addBox(voxels, 8, -2, 2, -2, 2);
 
-    const crenellations = [
-        [-2, -2], [-1, -2], [1, -2], [2, -2],
-        [-2, 2], [-1, 2], [1, 2], [2, 2],
-        [-2, -1], [-2, 1], [2, -1], [2, 1],
-    ];
-    crenellations.forEach(([x, z]) => addVoxel(voxels, x, 9, z, true));
-    return [...voxels.values()];
+    // A broad, stepped fortress plinth gives the rook the low center of
+    // gravity and antique-gold footing shown in the supplied multi-view study.
+    [
+        [0, 1, 13.2, true],
+        [2, 3, 12.9, false],
+        [4, 5, 12.25, false],
+        [6, 7, 11.45, false],
+        [8, 9, 10.45, false],
+        [10, 10, 9.25, false],
+    ].forEach(([startY, endY, radius, accent]) => {
+        for (let y = startY; y <= endY; y += 1) {
+            addDisk(voxels, y, radius, accent);
+        }
+    });
+
+    // The tower is tall and subtly tapered, with four body-colored buttresses
+    // that catch the light without interrupting the black-stone silhouette.
+    for (let y = 11; y <= 25; y += 1) {
+        const lowerHalf = y <= 18;
+        const radius = lowerHalf
+            ? 7.8 - ((y - 11) * 0.3)
+            : 5.7 + ((y - 18) * 0.12);
+        addDisk(voxels, y, radius);
+
+        const buttress = Math.ceil(radius);
+        for (let offset = -1; offset <= 1; offset += 1) {
+            addVoxel(voxels, buttress, y, offset);
+            addVoxel(voxels, -buttress, y, offset);
+            addVoxel(voxels, offset, y, buttress);
+            addVoxel(voxels, offset, y, -buttress);
+        }
+    }
+
+    // Turned rings transition from the narrow tower into the battlement. The
+    // gold course sits directly beneath the crown as in the reference.
+    [
+        [26, 7.1, false],
+        [27, 8.2, false],
+        [28, 9.2, false],
+        [29, 8.55, false],
+        [30, 9.5, true],
+        [31, 9.85, false],
+        [32, 9.35, false],
+    ].forEach(([y, radius, accent]) => {
+        addDisk(voxels, y, radius, accent);
+    });
+
+    // Six substantial merlons form a true radial battlement. Building each
+    // block along radial and tangent axes keeps the deep notches equally clear
+    // from the front, side, rear, and the freely orbiting gameplay camera.
+    const merlonAngles = Array.from(
+        { length: 6 },
+        (_, index) => (Math.PI * 2 * index / 6) - (Math.PI / 2),
+    );
+    merlonAngles.forEach((angle) => {
+        const radialX = Math.cos(angle);
+        const radialZ = Math.sin(angle);
+        const tangentX = -radialZ;
+        const tangentZ = radialX;
+
+        for (let y = 33; y <= 35; y += 1) {
+            for (let radialOffset = -2; radialOffset <= 2; radialOffset += 1) {
+                for (let tangentOffset = -2; tangentOffset <= 2; tangentOffset += 1) {
+                    const distance = 7.6 + radialOffset;
+                    addVoxel(
+                        voxels,
+                        Math.round((radialX * distance) + (tangentX * tangentOffset)),
+                        y,
+                        Math.round((radialZ * distance) + (tangentZ * tangentOffset)),
+                    );
+                }
+            }
+        }
+    });
+
+    return cullInteriorVoxels(voxels);
 }
 
 function buildKnightVoxels() {
@@ -753,7 +815,7 @@ const BASE_VOXEL_BLUEPRINTS = {
 
 const VOXEL_BLUEPRINTS = Object.fromEntries(
     Object.entries(BASE_VOXEL_BLUEPRINTS).map(([piece, voxels]) => (
-        [piece, ['p', 'n', 'b', 'q', 'k'].includes(piece)
+        [piece, ['p', 'r', 'n', 'b', 'q', 'k'].includes(piece)
             ? voxels
             : refineVoxelBlueprint(voxels)]
     )),
