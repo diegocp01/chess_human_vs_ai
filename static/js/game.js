@@ -45,6 +45,8 @@ const railAiColorEl = document.getElementById('rail-ai-color');
 const railHumanColorEl = document.getElementById('rail-human-color');
 const railHumanNameEl = document.getElementById('rail-human-name');
 const railHumanRatingEl = document.getElementById('rail-human-rating');
+const railAiCapturesEl = document.getElementById('rail-ai-captures');
+const railHumanCapturesEl = document.getElementById('rail-human-captures');
 const opponentColorCopyEl = document.getElementById('opponent-color-copy');
 const railAiAvatarEl = document.querySelector('.ai-avatar');
 const railHumanAvatarEl = document.querySelector('.human-avatar');
@@ -219,6 +221,10 @@ let resultsChartPoints = [];
 let resultsLastTrigger = null;
 let resultsResizeFrame = null;
 let trainedDecisionPinned = false;
+let dragState = null;
+let suppressBoardClick = false;
+let suppressBoardClickTimer = null;
+let legalMovesPromise = null;
 
 // Initialize
 btnStart.addEventListener('click', startGame);
@@ -298,6 +304,7 @@ chessBoard.addEventListener('focusout', () => {
         }
     }, 0);
 });
+chessBoard.addEventListener('pointerdown', handleBoardPointerDown);
 
 const promotionButtons = document.querySelectorAll('.promotion-piece');
 promotionButtons.forEach(btn => {
@@ -1288,6 +1295,9 @@ function renderBoard() {
                 pieceEl.setAttribute('aria-hidden', 'true');
                 square.appendChild(pieceEl);
                 square.setAttribute('aria-label', `${pieceName(pieceData.piece)} on ${squareName}`);
+                if (pieceData.color === gameState.human_color) {
+                    square.classList.add('own-piece');
+                }
             } else {
                 square.setAttribute('aria-label', `Empty square ${squareName}`);
             }
@@ -1345,6 +1355,68 @@ function updateHighlights() {
     updateVoxelHighlights();
 }
 
+const PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9 };
+const CAPTURE_GLYPHS = { q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
+const CAPTURE_ORDER = ['q', 'r', 'b', 'n', 'p'];
+
+// Shows each side's captured material and the current point advantage in the
+// player rails, derived by comparing the live board against a full piece set.
+function renderCapturedPieces() {
+    if (!railAiCapturesEl || !railHumanCapturesEl || !gameState) return;
+
+    const remaining = {
+        white: { p: 0, n: 0, b: 0, r: 0, q: 0 },
+        black: { p: 0, n: 0, b: 0, r: 0, q: 0 },
+    };
+    Object.values(gameState.board).forEach(({ piece, color }) => {
+        const type = piece.toLowerCase();
+        if (type in remaining[color]) remaining[color][type] += 1;
+    });
+
+    const initial = { p: 8, n: 2, b: 2, r: 2, q: 1 };
+    const captured = color => {
+        const taken = {};
+        let points = 0;
+        CAPTURE_ORDER.forEach(type => {
+            // Promotions can leave extra pieces on the board; never go negative.
+            taken[type] = Math.max(0, initial[type] - remaining[color][type]);
+            points += taken[type] * PIECE_VALUES[type];
+        });
+        return { taken, points };
+    };
+
+    const whiteLoss = captured('white');
+    const blackLoss = captured('black');
+    const renderRail = (el, loss, capturedColor, advantage) => {
+        const glyphs = CAPTURE_ORDER.flatMap(type => (
+            Array.from({ length: loss.taken[type] }, () => (
+                `<span class="capture-glyph ${capturedColor}" aria-hidden="true">${CAPTURE_GLYPHS[type]}</span>`
+            ))
+        )).join('');
+        const score = advantage > 0
+            ? `<span class="capture-score">+${advantage}</span>`
+            : '';
+        el.innerHTML = glyphs + score;
+    };
+
+    const aiColor = gameState.ai_color;
+    const humanColor = gameState.human_color;
+    const aiPoints = humanColor === 'white' ? whiteLoss.points : blackLoss.points;
+    const humanPoints = aiColor === 'white' ? whiteLoss.points : blackLoss.points;
+    renderRail(
+        railAiCapturesEl,
+        humanColor === 'white' ? whiteLoss : blackLoss,
+        humanColor,
+        aiPoints - humanPoints
+    );
+    renderRail(
+        railHumanCapturesEl,
+        aiColor === 'white' ? whiteLoss : blackLoss,
+        aiColor,
+        humanPoints - aiPoints
+    );
+}
+
 function pieceName(symbol) {
     const names = {
         k: 'Black king', q: 'Black queen', r: 'Black rook',
@@ -1356,30 +1428,23 @@ function pieceName(symbol) {
 }
 
 async function handleSquareClick(squareName) {
+    // A pointer interaction (piece selection or drag) already handled this
+    // press; ignore the compatibility click that follows it.
+    if (suppressBoardClick) {
+        suppressBoardClick = false;
+        return;
+    }
     if (!gameState || gameState.game_over || isWaitingForAI || isMoveAnimating) return;
     if (gameState.current_turn !== gameState.human_color) return;
 
     // If a piece is already selected
     if (selectedSquare) {
         // Check if clicking on a legal destination
-        const move = legalMoves.find(m => m.to === squareName);
-        if (move) {
-            // Check if it's a pawn promotion
-            if (move.promotion) {
-                pendingPromotion = { from: selectedSquare, to: squareName };
-                promotionModal.classList.remove('hidden');
-                return;
-            }
-            // Make the move
-            makeHumanMove(move.uci);
-            return;
-        }
+        if (tryMoveTo(squareName)) return;
 
         // Clicking on the same square deselects
         if (squareName === selectedSquare) {
-            selectedSquare = null;
-            legalMoves = [];
-            updateHighlights();
+            clearSelection();
             return;
         }
     }
@@ -1387,17 +1452,190 @@ async function handleSquareClick(squareName) {
     // Try to select a piece
     const pieceData = gameState.board[squareName];
     if (pieceData && pieceData.color === gameState.human_color) {
-        selectedSquare = squareName;
-        await fetchLegalMovesFromSquare(squareName);
-        updateHighlights();
+        await selectPiece(squareName);
     } else {
-        selectedSquare = null;
-        legalMoves = [];
-        updateHighlights();
+        clearSelection();
     }
 }
 
-async function fetchLegalMovesFromSquare(square) {
+// Attempts to play the currently selected piece to squareName. Returns true
+// when the square is a legal destination (including promotion hand-off).
+function tryMoveTo(squareName) {
+    const move = legalMoves.find(m => m.to === squareName);
+    if (!move) return false;
+    if (move.promotion) {
+        pendingPromotion = { from: selectedSquare, to: squareName };
+        promotionModal.classList.remove('hidden');
+        return true;
+    }
+    makeHumanMove(move.uci);
+    return true;
+}
+
+async function selectPiece(squareName) {
+    selectedSquare = squareName;
+    await fetchLegalMovesFromSquare(squareName);
+    updateHighlights();
+}
+
+function clearSelection() {
+    selectedSquare = null;
+    legalMoves = [];
+    updateHighlights();
+}
+
+// The click event that trails a pointer gesture must not re-run selection
+// logic. The timer clears the flag in case the browser never fires the click.
+function armClickSuppression() {
+    suppressBoardClick = true;
+    window.clearTimeout(suppressBoardClickTimer);
+    suppressBoardClickTimer = window.setTimeout(() => {
+        suppressBoardClick = false;
+    }, 250);
+}
+
+function handleBoardPointerDown(event) {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    if (!gameState || gameState.game_over || isWaitingForAI || isMoveAnimating) return;
+    if (gameState.current_turn !== gameState.human_color) return;
+
+    const squareEl = event.target.closest?.('.square');
+    if (!squareEl || !chessBoard.contains(squareEl)) return;
+    const squareName = squareEl.dataset.square;
+    const pieceData = gameState.board[squareName];
+    if (!pieceData || pieceData.color !== gameState.human_color) return;
+
+    if (selectedSquare !== squareName) {
+        selectPiece(squareName);
+        // Without suppression the trailing click would toggle this fresh
+        // selection straight back off.
+        armClickSuppression();
+    }
+
+    dragState = {
+        pointerId: event.pointerId,
+        fromSquare: squareName,
+        squareEl,
+        pieceEl: squareEl.querySelector('.piece'),
+        startX: event.clientX,
+        startY: event.clientY,
+        dragging: false,
+        ghostEl: null,
+        hoverEl: null,
+    };
+    chessBoard.addEventListener('pointermove', handleBoardPointerMove);
+    chessBoard.addEventListener('pointerup', handleBoardPointerUp);
+    chessBoard.addEventListener('pointercancel', cancelBoardDrag);
+    try {
+        chessBoard.setPointerCapture(event.pointerId);
+    } catch {
+        // Pointer capture is an enhancement; dragging inside the board still works.
+    }
+}
+
+function handleBoardPointerMove(event) {
+    if (!dragState || event.pointerId !== dragState.pointerId) return;
+    if (!dragState.dragging) {
+        const distance = Math.hypot(
+            event.clientX - dragState.startX,
+            event.clientY - dragState.startY
+        );
+        if (distance < 6) return;
+        startPieceDrag();
+    }
+    moveDragGhost(event);
+}
+
+function startPieceDrag() {
+    const { squareEl, pieceEl } = dragState;
+    if (!pieceEl) return;
+    dragState.dragging = true;
+    const rect = squareEl.getBoundingClientRect();
+    const ghost = document.createElement('div');
+    ghost.className = 'drag-ghost';
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.style.width = `${rect.width}px`;
+    ghost.style.height = `${rect.height}px`;
+    ghost.innerHTML = pieceEl.outerHTML;
+    document.body.appendChild(ghost);
+    dragState.ghostEl = ghost;
+    squareEl.classList.add('drag-source');
+    chessBoard.classList.add('dragging-piece');
+}
+
+function moveDragGhost(event) {
+    if (!dragState?.dragging || !dragState.ghostEl) return;
+    dragState.ghostEl.style.left = `${event.clientX}px`;
+    dragState.ghostEl.style.top = `${event.clientY}px`;
+
+    const under = document.elementFromPoint(event.clientX, event.clientY);
+    const overSquare = under?.closest?.('.square') || null;
+    if (dragState.hoverEl !== overSquare) {
+        dragState.hoverEl?.classList.remove('drag-over');
+        dragState.hoverEl = overSquare;
+        overSquare?.classList.add('drag-over');
+    }
+}
+
+async function handleBoardPointerUp(event) {
+    if (!dragState || event.pointerId !== dragState.pointerId) return;
+    const state = dragState;
+    dragState = null;
+    teardownDragListeners();
+
+    // A press without movement stays a click; the click handler owns it.
+    if (!state.dragging) return;
+
+    armClickSuppression();
+    cleanupDragVisuals(state);
+
+    const dropSquare = state.hoverEl?.dataset.square;
+    if (!dropSquare || dropSquare === state.fromSquare) return;
+
+    // Selection fetches legal moves asynchronously; make sure a fast drop
+    // still sees them before deciding the move is illegal.
+    if (legalMovesPromise) {
+        try {
+            await legalMovesPromise;
+        } catch {
+            // fetchLegalMovesFromSquare already reported the failure.
+        }
+    }
+    if (selectedSquare !== state.fromSquare) return;
+    // An illegal drop keeps the piece selected so a follow-up click can move it.
+    tryMoveTo(dropSquare);
+}
+
+function cancelBoardDrag(event) {
+    if (!dragState || (event && event.pointerId !== dragState.pointerId)) return;
+    const state = dragState;
+    dragState = null;
+    teardownDragListeners();
+    if (state.dragging) {
+        armClickSuppression();
+        cleanupDragVisuals(state);
+    }
+}
+
+function teardownDragListeners() {
+    chessBoard.removeEventListener('pointermove', handleBoardPointerMove);
+    chessBoard.removeEventListener('pointerup', handleBoardPointerUp);
+    chessBoard.removeEventListener('pointercancel', cancelBoardDrag);
+}
+
+function cleanupDragVisuals(state) {
+    state.ghostEl?.remove();
+    state.hoverEl?.classList.remove('drag-over');
+    state.squareEl?.classList.remove('drag-source');
+    chessBoard.classList.remove('dragging-piece');
+}
+
+function fetchLegalMovesFromSquare(square) {
+    legalMovesPromise = fetchLegalMovesFromSquareInner(square);
+    return legalMovesPromise;
+}
+
+async function fetchLegalMovesFromSquareInner(square) {
     try {
         const response = await fetch(`/api/legal-moves-from/${square}`);
         const data = await response.json();
@@ -2302,6 +2540,7 @@ function updateUI() {
     railHumanColorEl.textContent = `${capitalize(gameState.human_color)} · Human`;
     railHumanNameEl.textContent = gameState.player.username;
     railHumanRatingEl.textContent = `${gameState.player.elo} Elo`;
+    renderCapturedPieces();
     let opponentDetail = `Playing the ${gameState.ai_color} pieces`;
     if (gameState.ai_provider === 'trained') {
         const trained = gameState.trained_model_summary || {};

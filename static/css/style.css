@@ -1165,7 +1165,7 @@ a:focus-visible {
 .game-container {
     width: min(1480px, calc(100% - 48px));
     margin: 0 auto;
-    padding: 35px 0 60px;
+    padding: 22px 0 34px;
     animation: game-arrival 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -1263,22 +1263,34 @@ a:focus-visible {
 }
 
 .game-layout {
+    /* Clamp the board by viewport height so a full match — both rails and all
+       64 squares — stays on screen without scrolling on a laptop display. The
+       floor keeps squares usable on short viewports, which scroll instead. */
+    --board-size: min(710px, max(420px, 100vh - 300px));
+    --board-size: min(710px, max(420px, 100dvh - 300px));
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 370px;
+    /* Sizing the board column to the board itself keeps the pair optically
+       centred instead of drifting left when the height clamp kicks in. */
+    grid-template-columns: minmax(0, var(--board-size)) 370px;
     gap: clamp(28px, 4vw, 58px);
     align-items: start;
+    justify-content: center;
 }
 
 .board-section {
     display: flex;
+    width: 100%;
+    /* The stacked layouts below 980px have no board column to cap the width. */
+    max-width: 710px;
     min-width: 0;
+    margin: 0 auto;
     align-items: center;
     flex-direction: column;
 }
 
 .player-rail {
     display: flex;
-    width: min(100%, 710px);
+    width: 100%;
     min-height: 61px;
     align-items: center;
     gap: 12px;
@@ -1379,9 +1391,43 @@ a:focus-visible {
     background: var(--human);
 }
 
+.rail-captures {
+    display: flex;
+    align-items: center;
+    margin-right: 6px;
+    font-family: Georgia, serif;
+    font-size: 1.15rem;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.rail-captures:empty {
+    display: none;
+}
+
+.capture-glyph.white {
+    color: #efe4cb;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.capture-glyph.black {
+    color: #6f6553;
+    text-shadow: 0 0 1px rgba(240, 228, 203, 0.35);
+}
+
+.capture-score {
+    margin-left: 7px;
+    color: var(--human);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
 .board-stage {
     position: relative;
-    width: min(100%, 710px);
+    width: 100%;
     aspect-ratio: 1;
     isolation: isolate;
 }
@@ -1672,6 +1718,46 @@ a:focus-visible {
     50% {
         filter: brightness(1.13);
     }
+}
+
+.square.own-piece {
+    touch-action: none;
+}
+
+.square.own-piece .piece {
+    cursor: grab;
+}
+
+.chess-board.dragging-piece .square {
+    cursor: grabbing;
+}
+
+.square.drag-source .piece {
+    opacity: 0.3;
+    filter: saturate(0.7);
+    transition: none;
+}
+
+.square.drag-over {
+    z-index: 4;
+    box-shadow: inset 0 0 0 4px rgba(255, 230, 129, 0.6);
+}
+
+.drag-ghost {
+    position: fixed;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.44));
+    pointer-events: none;
+    transform: translate(-50%, -56%) scale(1.06);
+    will-change: left, top;
+}
+
+.drag-ghost .piece {
+    width: 100%;
+    height: 100%;
+    transition: none;
 }
 
 .piece {

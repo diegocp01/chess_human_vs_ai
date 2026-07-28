@@ -133,6 +133,9 @@ Restart the app after changing `.env`, then select **OpenAI — API key** or
 - Local, non-AI text-to-speech commentator with deterministic move and position narration
 - Responsive 3D board for desktop and mobile, with a selectable Classic board
   and automatic 2D fallback if WebGL fails or keyboard board navigation begins
+- Drag a piece to its destination, or click the piece and then the square
+- Captured-material rails showing each side's takes and the point advantage
+- Board sized to the viewport height so a full match fits without scrolling
 - Legal destination and capture indicators
 - Persistent last-move and check highlighting
 - Live AI thinking timer and reasoning notes
