@@ -262,48 +262,63 @@ function buildKnightVoxels() {
         }
     }
 
-    // Overlapping volumes sculpt a recognizable cheek, forehead, jaw, and
-    // long horse muzzle without making the piece exceed its chess square.
+    // A horse reads by proportion, not detail: a deep round cheek at the back,
+    // then a long muzzle stepping forward and down along a near-straight nose
+    // bridge. A short snout on a round skull reads as a dog instead. The nose
+    // stops at x = -6.8 so the piece still fits inside its square.
     addEllipsoid(
         voxels,
-        -1.15 * detail, 8.8 * detail, 0,
-        3.0 * detail, 2.35 * detail, 1.9 * detail,
+        -0.4 * detail, 8.7 * detail, 0,
+        2.35 * detail, 2.55 * detail, 1.88 * detail,
     );
     addEllipsoid(
         voxels,
-        -4.15 * detail, 7.55 * detail, 0,
-        2.7 * detail, 1.32 * detail, 1.42 * detail,
+        -2.4 * detail, 8.5 * detail, 0,
+        1.9 * detail, 1.5 * detail, 1.45 * detail,
     );
     addEllipsoid(
         voxels,
-        -2.65 * detail, 6.72 * detail, 0,
-        1.95 * detail, 1.02 * detail, 1.46 * detail,
+        -4.0 * detail, 8.0 * detail, 0,
+        1.7 * detail, 1.25 * detail, 1.3 * detail,
     );
     addEllipsoid(
         voxels,
-        -0.2 * detail, 10.0 * detail, 0,
-        1.6 * detail, 1.85 * detail, 1.65 * detail,
+        -5.4 * detail, 7.5 * detail, 0,
+        1.4 * detail, 1.05 * detail, 1.12 * detail,
+    );
+    // Jaw under the cheek, giving the head a defined underline.
+    addEllipsoid(
+        voxels,
+        -2.1 * detail, 7.0 * detail, 0,
+        1.85 * detail, 1.0 * detail, 1.4 * detail,
+    );
+    // Forehead and poll.
+    addEllipsoid(
+        voxels,
+        0.1 * detail, 10.6 * detail, 0,
+        1.75 * detail, 1.7 * detail, 1.6 * detail,
     );
 
-    // Long tapered ears with contrasting inner-ear facets.
+    // Narrow upright ears set close together on the poll. The previous pair was
+    // wide-set and broad, which is a canine cue.
     [-1, 1].forEach(side => {
         addEllipsoid(
             voxels,
-            0.15 * detail,
-            12.05 * detail,
-            side * 1.08 * detail,
-            0.58 * detail,
-            1.75 * detail,
-            0.5 * detail,
+            0.3 * detail,
+            12.4 * detail,
+            side * 0.95 * detail,
+            0.45 * detail,
+            2.0 * detail,
+            0.42 * detail,
         );
         addEllipsoid(
             voxels,
-            -0.1 * detail,
-            12.25 * detail,
-            side * 1.1 * detail,
-            0.2 * detail,
-            1.0 * detail,
-            0.2 * detail,
+            0.1 * detail,
+            12.6 * detail,
+            side * 0.97 * detail,
+            0.16 * detail,
+            1.15 * detail,
+            0.16 * detail,
             true,
         );
     });
@@ -339,22 +354,22 @@ function buildKnightVoxels() {
     [-1, 1].forEach(side => {
         addEllipsoid(
             voxels,
-            -2.0 * detail, 9.2 * detail, side * 1.78 * detail,
+            -1.0 * detail, 9.6 * detail, side * 1.72 * detail,
             0.28 * detail, 0.28 * detail, 0.16 * detail,
             true,
         );
         addEllipsoid(
             voxels,
-            -5.85 * detail, 7.45 * detail, side * 0.92 * detail,
-            0.35 * detail, 0.28 * detail, 0.2 * detail,
+            -6.3 * detail, 7.5 * detail, side * 0.8 * detail,
+            0.32 * detail, 0.26 * detail, 0.2 * detail,
             true,
         );
-        for (let x = -5.1 * detail; x <= -3.25 * detail; x += 1) {
+        for (let x = -6.5 * detail; x <= -4.6 * detail; x += 1) {
             addVoxel(
                 voxels,
                 Math.round(x),
-                Math.round(6.75 * detail),
-                Math.round(side * 1.2 * detail),
+                Math.round(6.85 * detail),
+                Math.round(side * 1.0 * detail),
                 true,
             );
         }

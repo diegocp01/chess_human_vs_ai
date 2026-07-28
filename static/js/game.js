@@ -112,14 +112,14 @@ function renderPieceSvg(symbol, squareName) {
         `,
         n: `
             <ellipse class="piece-ground" cx="51" cy="90" rx="32" ry="4"/>
-            <path class="piece-main" d="M23 78c4-11 11-19 21-25l-9-2c-6-1-10-5-11-10l5-7 12-1c2-7 6-13 12-18l2 14 9-14 2 15c8 4 13 12 15 22 2 9-1 18-7 26H23Z"/>
+            <path class="piece-main" d="M31 76C31 66 32 60 36 56C41 51 40 47 34 46L19 48C15 48 13 46 14 43C15 41 17 40 19 39L42 18C46 14 50 11 55 10L58 2L67 17C73 24 77 33 78 44C79 55 78 66 76 76Z"/>
             <path class="piece-base" d="M23 76h53l5 11H18l5-11Z"/>
-            <path class="piece-inlay" d="M65 31c8 6 11 15 10 25-1 8-4 14-8 20h8c6-9 8-18 6-27-2-9-7-15-16-18Z"/>
-            <path class="piece-highlight" d="M47 34c7-3 15-1 20 4M37 54c10 0 18-4 24-11"/>
-            <path class="piece-engraving" d="M35 72c6-10 15-16 26-20M29 81h45M68 40l5 5M69 49l6 5M68 59l5 5"/>
-            <circle class="piece-jewel" cx="55" cy="34" r="2.7"/>
-            <path class="piece-cut knight-mouth" d="M31 41c3 2 6 2 9 1"/>
-            <circle class="piece-inlay" cx="29" cy="40" r="1.4"/>
+            <path class="piece-inlay" d="M56 12c8 7 13 17 15 28 2 11 2 23 1 36h-6c1-13 1-25-1-35-2-10-6-19-12-25l3-4Z"/>
+            <path class="piece-highlight" d="M23 40 40 24M47 15c4-2 7-3 11-3"/>
+            <path class="piece-engraving" d="M59 20c4 7 7 15 8 24M64 27c3 6 5 14 6 21M29 81h45"/>
+            <circle class="piece-jewel" cx="43" cy="24" r="2.4"/>
+            <path class="piece-cut knight-mouth" d="M16 46c3 1 5 1 8 1"/>
+            <circle class="piece-inlay" cx="21" cy="43" r="1.4"/>
         `,
         b: `
             <ellipse class="piece-ground" cx="50" cy="90" rx="30" ry="4"/>
