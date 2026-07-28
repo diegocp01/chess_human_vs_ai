@@ -500,6 +500,15 @@ def finalize_game(state: dict, checkmate_winner: str) -> None:
         state['winner'] = 'draw'
         state['game_result'] = 'Game drawn'
 
+    apply_rating_update(state)
+
+
+def apply_rating_update(state: dict) -> None:
+    """Record the finished game against the player and opponent ratings.
+
+    Shared by natural endings, resignation, and claimed draws so every path
+    scores a completed game the same way and only once per game ID.
+    """
     if state.get('rating_update', {}).get('status') != 'complete':
         human_score = 0.5
         if state['winner'] == 'human':
@@ -536,6 +545,112 @@ def finalize_game(state: dict, checkmate_winner: str) -> None:
 @app.before_request
 def prepare_persistent_storage():
     ensure_persistent_storage()
+
+
+def can_take_back(state: dict) -> bool:
+    """A takeback is offered once you have a move of your own to retract."""
+    if not state or state['game_over']:
+        return False
+    if state['current_turn'] != state['human_color']:
+        return False
+    return any(record['actor'] == 'human' for record in state['move_records'])
+
+
+def truncate_history_to(state: dict, ply_count: int) -> None:
+    """Roll every parallel history list back to the same length."""
+    state['move_history'] = state['move_history'][:ply_count]
+    state['move_history_san'] = state['move_history_san'][:ply_count]
+    state['move_records'] = state['move_records'][:ply_count]
+    state['trained_ai_prediction_history'] = [
+        entry for entry in state.get('trained_ai_prediction_history', [])
+        if entry.get('ply', 0) <= ply_count
+    ]
+
+
+@app.route('/api/resign', methods=['POST'])
+def resign_game():
+    """End the game as a loss for the human, scoring it like any other result."""
+    global GAME_STATE
+    state = GAME_STATE
+    if not state:
+        return jsonify({'error': 'No game in progress'}), 400
+    if state['game_over']:
+        return jsonify({'error': 'Game is already over'}), 400
+
+    state['game_over'] = True
+    state['ended_at'] = utc_now()
+    state['winner'] = 'ai'
+    state['resigned_by'] = 'human'
+    state['game_result'] = 'You resigned - AI wins'
+    apply_rating_update(state)
+
+    GAME_STATE = state
+    persist_game_and_refresh_training(state)
+    return jsonify({'success': True, 'game_state': get_client_state(state)})
+
+
+@app.route('/api/claim-draw', methods=['POST'])
+def claim_draw():
+    """Claim a draw that the position already entitles you to."""
+    global GAME_STATE
+    state = GAME_STATE
+    if not state:
+        return jsonify({'error': 'No game in progress'}), 400
+    if state['game_over']:
+        return jsonify({'error': 'Game is already over'}), 400
+
+    board = state['board']
+    if not board.can_claim_draw():
+        return jsonify({
+            'error': 'This position does not allow a draw claim yet.',
+        }), 400
+
+    state['game_over'] = True
+    state['ended_at'] = utc_now()
+    state['winner'] = 'draw'
+    state['game_result'] = (
+        'Fifty-move rule - Draw' if board.can_claim_fifty_moves()
+        else 'Threefold repetition - Draw'
+    )
+    apply_rating_update(state)
+
+    GAME_STATE = state
+    persist_game_and_refresh_training(state)
+    return jsonify({'success': True, 'game_state': get_client_state(state)})
+
+
+@app.route('/api/takeback', methods=['POST'])
+def takeback():
+    """Retract your last move along with the reply it drew from the AI."""
+    global GAME_STATE
+    state = GAME_STATE
+    if not state:
+        return jsonify({'error': 'No game in progress'}), 400
+    if not can_take_back(state):
+        return jsonify({'error': 'There is no move of yours to take back.'}), 400
+
+    board = state['board']
+    # Pop back through the AI's reply to your own most recent move. Anything
+    # already written to the game log is rewritten by the persist call below.
+    while state['move_records'] and state['move_records'][-1]['actor'] == 'ai':
+        board.pop()
+        truncate_history_to(state, len(state['move_records']) - 1)
+    if state['move_records'] and state['move_records'][-1]['actor'] == 'human':
+        board.pop()
+        truncate_history_to(state, len(state['move_records']) - 1)
+
+    state['fen'] = board.fen()
+    state['current_turn'] = 'white' if board.turn == chess.WHITE else 'black'
+    state['ai_reasoning'] = ''
+    update_trained_win_prediction(state)
+
+    GAME_STATE = state
+    persist_game_and_refresh_training(state)
+    return jsonify({
+        'success': True,
+        'game_state': get_client_state(state),
+        'last_move': state['move_history'][-1] if state['move_history'] else None,
+    })
 
 
 @app.route('/')
@@ -1044,6 +1159,13 @@ def get_client_state(state):
         'game_result': state['game_result'],
         'current_turn': state['current_turn'],
         'is_check': board.is_check(),
+        'can_takeback': can_take_back(state),
+        'resigned_by': state.get('resigned_by'),
+        'can_claim_draw': board.can_claim_draw() and not state['game_over'],
+        'move_records': [
+            {'ply': r['ply'], 'san': r['san'], 'uci': r['uci'], 'fen_after': r['fen_after']}
+            for r in state['move_records']
+        ],
         'human_color': state['human_color'],
         'ai_color': state['ai_color'],
         'player': state['player'],

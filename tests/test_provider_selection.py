@@ -31,7 +31,9 @@ CODEX_MODELS = [
 ]
 
 
-class ProviderSelectionTests(unittest.TestCase):
+class KingsideTestCase(unittest.TestCase):
+    """Shared fixture: isolated game logs, trained model, and player profiles."""
+
     def setUp(self):
         app_module.app.config["TESTING"] = True
         app_module.GAME_STATE = {}
@@ -54,6 +56,8 @@ class ProviderSelectionTests(unittest.TestCase):
         app_module.PLAYER_DATA_PATH = self.original_player_data_path
         self.log_directory.cleanup()
 
+
+class ProviderSelectionTests(KingsideTestCase):
     def write_coached_game(self, suffix="01", tactic="Kingside initiative"):
         record = {
             "schema_version": 1,
@@ -979,6 +983,135 @@ class ProviderSelectionTests(unittest.TestCase):
         )
         self.assertEqual(player["elo"], 0)
         self.assertEqual(player["games"], 1)
+
+
+class GameControlTests(KingsideTestCase):
+    """Resignation, draw claims, and takebacks."""
+
+    def start_trained_game(self):
+        with patch.object(app_module.secrets, "choice", return_value="white"):
+            response = self.client.post(
+                "/api/start-game",
+                json={"ai_provider": "trained", "ai_model": "trained-local"},
+            )
+        self.assertEqual(response.status_code, 200)
+        return response.get_json()["game_state"]
+
+    def test_resigning_loses_the_game_and_scores_it(self):
+        self.start_trained_game()
+        self.client.post("/api/human-move", json={"move": "e2e4"})
+
+        response = self.client.post("/api/resign")
+        self.assertEqual(response.status_code, 200)
+        state = response.get_json()["game_state"]
+        self.assertTrue(state["game_over"])
+        self.assertEqual(state["winner"], "ai")
+        self.assertIn("resigned", state["game_result"].lower())
+
+        # A resignation is a completed game: it is rated and logged as such.
+        self.assertEqual(state["rating_update"]["status"], "complete")
+        player = app_module.get_player(
+            app_module.PLAYER_DATA_PATH, self.player["id"]
+        )
+        self.assertEqual(player["games"], 1)
+        self.assertEqual(player["losses"], 1)
+
+        record = json.loads(
+            next(Path(self.log_directory.name).glob("*.json")).read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertNotEqual(record.get("status"), "incomplete")
+
+    def test_resigning_twice_does_not_double_count(self):
+        self.start_trained_game()
+        self.client.post("/api/resign")
+        second = self.client.post("/api/resign")
+        self.assertEqual(second.status_code, 400)
+        player = app_module.get_player(
+            app_module.PLAYER_DATA_PATH, self.player["id"]
+        )
+        self.assertEqual(player["games"], 1)
+
+    def test_resign_requires_a_game_in_progress(self):
+        app_module.GAME_STATE = {}
+        self.assertEqual(self.client.post("/api/resign").status_code, 400)
+
+    def test_draw_cannot_be_claimed_from_the_opening(self):
+        self.start_trained_game()
+        response = self.client.post("/api/claim-draw")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("does not allow", response.get_json()["error"])
+
+    def test_draw_can_be_claimed_once_the_position_repeats(self):
+        state = self.start_trained_game()
+        self.assertFalse(state["can_claim_draw"])
+
+        # Shuffle both knights out and back until the start position repeats.
+        app_module.GAME_STATE["board"] = chess.Board()
+        board = app_module.GAME_STATE["board"]
+        for move in ["g1f3", "g8f6", "f3g1", "f6g8"] * 2:
+            board.push(chess.Move.from_uci(move))
+        app_module.GAME_STATE["fen"] = board.fen()
+
+        response = self.client.post("/api/claim-draw")
+        self.assertEqual(response.status_code, 200)
+        drawn = response.get_json()["game_state"]
+        self.assertTrue(drawn["game_over"])
+        self.assertEqual(drawn["winner"], "draw")
+        player = app_module.get_player(
+            app_module.PLAYER_DATA_PATH, self.player["id"]
+        )
+        self.assertEqual(player["draws"], 1)
+
+    def test_takeback_retracts_your_move_and_the_ai_reply(self):
+        self.start_trained_game()
+        after_move = self.client.post(
+            "/api/human-move", json={"move": "e2e4"}
+        ).get_json()["game_state"]
+        self.assertEqual(len(after_move["move_history"]), 1)
+
+        ai_state = self.client.post("/api/ai-move").get_json()["game_state"]
+        self.assertEqual(len(ai_state["move_history"]), 2)
+        self.assertTrue(ai_state["can_takeback"])
+
+        response = self.client.post("/api/takeback")
+        self.assertEqual(response.status_code, 200)
+        state = response.get_json()["game_state"]
+
+        # Both plies are gone and it is the human's turn on the start position.
+        self.assertEqual(state["move_history"], [])
+        self.assertEqual(state["move_history_san"], [])
+        self.assertEqual(state["move_records"], [])
+        self.assertEqual(state["current_turn"], state["human_color"])
+        self.assertEqual(state["fen"], chess.Board().fen())
+        self.assertFalse(state["can_takeback"])
+
+    def test_takeback_is_refused_when_you_have_not_moved(self):
+        self.start_trained_game()
+        response = self.client.post("/api/takeback")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("no move of yours", response.get_json()["error"])
+
+    def test_takeback_is_refused_after_the_game_ends(self):
+        self.start_trained_game()
+        self.client.post("/api/human-move", json={"move": "e2e4"})
+        self.client.post("/api/resign")
+        self.assertEqual(self.client.post("/api/takeback").status_code, 400)
+
+    def test_takeback_then_replay_keeps_the_history_consistent(self):
+        self.start_trained_game()
+        self.client.post("/api/human-move", json={"move": "e2e4"})
+        self.client.post("/api/ai-move")
+        self.client.post("/api/takeback")
+
+        replayed = self.client.post(
+            "/api/human-move", json={"move": "d2d4"}
+        ).get_json()["game_state"]
+        self.assertEqual(replayed["move_history"], ["d2d4"])
+        self.assertEqual(replayed["move_history_san"], ["d4"])
+        self.assertEqual(len(replayed["move_records"]), 1)
+        self.assertEqual(replayed["move_records"][0]["ply"], 1)
 
 
 if __name__ == "__main__":

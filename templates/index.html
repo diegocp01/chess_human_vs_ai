@@ -266,6 +266,25 @@
                         <p>Select one of your pieces, then choose a highlighted destination.</p>
                     </section>
 
+                    <section class="match-actions" aria-label="Match controls">
+                        <button id="btn-takeback" class="btn-match-action" type="button" disabled>
+                            <span class="material-symbols-rounded" aria-hidden="true">undo</span>
+                            <span>Take back</span>
+                        </button>
+                        <button id="btn-flip-board" class="btn-match-action" type="button">
+                            <span class="material-symbols-rounded" aria-hidden="true">flip_camera_android</span>
+                            <span>Flip board</span>
+                        </button>
+                        <button id="btn-claim-draw" class="btn-match-action hidden" type="button">
+                            <span class="material-symbols-rounded" aria-hidden="true">handshake</span>
+                            <span>Claim draw</span>
+                        </button>
+                        <button id="btn-resign" class="btn-match-action btn-resign" type="button">
+                            <span class="material-symbols-rounded" aria-hidden="true">flag</span>
+                            <span>Resign</span>
+                        </button>
+                    </section>
+
                     <button id="btn-new-game" class="btn-new-game" type="button">
                         <span class="button-icon" aria-hidden="true">↻</span>
                         <span>Start a new match</span>
@@ -589,6 +608,20 @@
         </section>
     </div>
 
+    <div id="confirm-modal" class="promotion-modal hidden">
+        <section class="promotion-content confirm-content" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <span class="eyebrow">Confirm</span>
+            <h2 id="confirm-title">Resign this match?</h2>
+            <p id="confirm-copy" class="confirm-copy">
+                The game is recorded as a loss and your rating is updated.
+            </p>
+            <div class="confirm-actions">
+                <button id="btn-confirm-cancel" class="btn-confirm-cancel" type="button">Keep playing</button>
+                <button id="btn-confirm-accept" class="btn-confirm-accept" type="button">Resign</button>
+            </div>
+        </section>
+    </div>
+
     <div id="promotion-modal" class="promotion-modal hidden">
         <section class="promotion-content" role="dialog" aria-modal="true" aria-labelledby="promotion-title">
             <span class="eyebrow">Pawn promoted</span>
@@ -610,6 +643,7 @@
             }
         }
     </script>
+    <script src="/static/js/chess-logic.js"></script>
     <script src="/static/js/game.js"></script>
 </body>
 

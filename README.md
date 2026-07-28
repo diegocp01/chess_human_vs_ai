@@ -144,6 +144,23 @@ ANTHROPIC_API_KEY=your_anthropic_api_key
 Restart the app after changing `.env`, then select **OpenAI — API key** or
 **Anthropic — API key** on the match setup screen.
 
+## Running the tests
+
+The Python suite covers the server, provider selection, game records, and
+ratings:
+
+```bash
+python -m unittest discover -s tests
+```
+
+The browser suite covers the board logic in `static/js/chess-logic.js` —
+captured-material counting, board orientation, and notation pairing. It uses
+Node's built-in test runner, so it needs no dependencies:
+
+```bash
+npm test
+```
+
 ## Game experience
 
 - Fully reconstructed 3D voxel chess set rendered locally with WebGL
@@ -160,6 +177,10 @@ Restart the app after changing `.env`, then select **OpenAI — API key** or
 - Deep walnut board palette shared by the Classic and Voxel boards
 - Captured-material rails showing each side's takes and the point advantage
 - Board sized to the viewport height so a full match fits without scrolling
+- Resign, take back your last move, claim a draw the position already allows,
+  and flip the board to either side
+- Click any move in the notation panel to review the position after it, then
+  click it again or press Escape to return to the live game
 - Legal destination and capture indicators
 - Persistent last-move and check highlighting
 - Live AI thinking timer and reasoning notes
