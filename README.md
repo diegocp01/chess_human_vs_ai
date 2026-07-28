@@ -181,6 +181,9 @@ npm test
   and flip the board to either side
 - Click any move in the notation panel to review the position after it, then
   click it again or press Escape to return to the live game
+- Every capture on the voxel board is a short duel: the capturing piece draws a
+  sword, lunges, and strikes, and the captured piece topples over. Only the
+  attacker ever swings, and reduced-motion settings skip straight to the result
 - Legal destination and capture indicators
 - Persistent last-move and check highlighting
 - Live AI thinking timer and reasoning notes
