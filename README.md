@@ -4,7 +4,8 @@ A polished local chess arena where your side is randomized each match and the
 opposing army is powered by OpenAI, Anthropic, your existing Codex subscription,
 or a local model that learns from completed games.
 
-![Kingside game interface with legal move highlights](static/img/image.png)
+![Kingside mid-match on the voxel board, showing the highlighted legal
+destinations, the opponent panel, and the move history](static/img/image.png)
 
 ## Choose how you play
 
