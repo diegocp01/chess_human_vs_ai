@@ -1149,7 +1149,10 @@ export class VoxelChessBoard {
         return group;
     }
 
-    createPawnCombatRig(color) {
+    // Builds the arm and sword that a capturing piece brandishes. The geometry
+    // is expressed relative to the piece it grows from, so a pawn and a queen
+    // each sprout an arm at their own shoulder height rather than a fixed one.
+    createCombatRig(color, { shoulderHeight, reach, side = 1 }) {
         const rig = new THREE.Group();
         const bodyMaterial = this.pieceMaterials[color]?.body;
         const accentMaterial = this.pieceMaterials[color]?.accent;
@@ -1184,38 +1187,42 @@ export class VoxelChessBoard {
             }
         };
 
-        // One balancing arm and one sword arm grow from the pawn's narrow stem.
+        const z = 0.12 * side;
+
+        // A short bracing arm on the far side balances the swing.
         addChain(
             rig,
-            [-0.1, 0.53, 0],
-            [-0.29, 0.49, 0.12],
+            [-0.1, shoulderHeight, 0],
+            [-0.29 * reach, shoulderHeight - 0.04, z],
             9,
             bodyMaterial,
             1.55,
         );
 
         const swordArm = new THREE.Group();
-        swordArm.position.set(0.1, 0.53, 0);
+        swordArm.position.set(0.1, shoulderHeight, 0);
         addChain(
             swordArm,
             [0, 0, 0],
-            [0.2, -0.04, 0.12],
+            [0.2 * reach, -0.04, z],
             9,
             bodyMaterial,
             1.55,
         );
+        // Cross-guard.
         addChain(
             swordArm,
-            [0.13, -0.04, 0.12],
-            [0.27, -0.04, 0.12],
+            [0.13 * reach, -0.04, z],
+            [0.27 * reach, -0.04, z],
             6,
             accentMaterial,
             1.5,
         );
+        // Blade.
         addChain(
             swordArm,
-            [0.2, -0.01, 0.12],
-            [0.2, 0.48, 0.12],
+            [0.2 * reach, -0.01, z],
+            [0.2 * reach, 0.48 * reach, z],
             21,
             bladeMaterial,
             1.35,
@@ -1226,7 +1233,10 @@ export class VoxelChessBoard {
         return rig;
     }
 
-    async animatePawnCapture({
+    // A capture is staged as a short duel: the attacker sprouts a sword arm,
+    // lunges, swings, and the defender topples over from the blow. Every piece
+    // takes part, not only pawns, and only the attacker ever strikes.
+    async animateCapture({
         fromSquare,
         toSquare,
         captureSquare,
@@ -1234,15 +1244,9 @@ export class VoxelChessBoard {
     } = {}) {
         if (!this.active) return false;
 
-        const attacker = this.pieceGroup.children.find(piece => (
-            piece.userData.square === fromSquare
-            && piece.userData.type === 'p'
-        ));
-        const defender = this.pieceGroup.children.find(piece => (
-            piece.userData.square === captureSquare
-            && piece.userData.type === 'p'
-        ));
-        if (!attacker || !defender) return false;
+        const attacker = this.pieceGroups.get(fromSquare);
+        const defender = this.pieceGroups.get(captureSquare);
+        if (!attacker || !defender || attacker === defender) return false;
 
         const startPosition = attacker.position.clone();
         const destination = squarePosition(toSquare);
@@ -1252,16 +1256,51 @@ export class VoxelChessBoard {
             destination.z,
         );
         const capturePosition = squarePosition(captureSquare);
-        const defenderScale = defender.scale.clone();
         const defenderRotation = defender.rotation.clone();
-        const rig = this.createPawnCombatRig(attacker.userData.color);
+        const defenderQuaternion = defender.quaternion.clone();
+        const defenderPosition = defender.position.clone();
+
+        // The rig lives inside the attacker, so it inherits that piece's
+        // uniform scale. Measure the piece in its own local units to find the
+        // shoulder, and cancel the scale so every sword ends up a similar size
+        // on the board.
+        const pieceScale = attacker.scale.x || 1;
+        const bounds = new THREE.Box3().setFromObject(attacker);
+        const localHeight = Math.max(
+            0.4,
+            (bounds.max.y - bounds.min.y) / pieceScale,
+        );
+        const shoulderHeight = localHeight * 0.62;
+        const reach = THREE.MathUtils.clamp(localHeight / 1.15, 0.75, 1.35);
+        const rigScale = THREE.MathUtils.clamp(1 / pieceScale, 0.6, 1.8);
+
+        const rig = this.createCombatRig(attacker.userData.color, {
+            shoulderHeight,
+            reach,
+            // Alternating the sword side keeps repeated captures from looking
+            // like the same clip played twice.
+            side: Math.random() < 0.5 ? -1 : 1,
+        });
         const strikeDirection = new THREE.Vector2(
             capturePosition.x - startPosition.x,
             capturePosition.z - startPosition.z,
         );
-        rig.rotation.y = Math.atan2(strikeDirection.x, strikeDirection.y);
+        rig.rotation.y = Math.atan2(strikeDirection.x, strikeDirection.y)
+            - (attacker.rotation.y || 0);
         rig.scale.setScalar(0.001);
         attacker.add(rig);
+
+        // The defender falls away from the blow. Rotating about the group
+        // origin pivots it at its base, so it tips over rather than sinking.
+        const strike = new THREE.Vector3(
+            capturePosition.x - startPosition.x,
+            0,
+            capturePosition.z - startPosition.z,
+        );
+        if (strike.lengthSq() < 1e-6) strike.set(0, 0, 1);
+        strike.normalize();
+        const toppleAxis = new THREE.Vector3(strike.z, 0, -strike.x).normalize();
+        const TOPPLE_ANGLE = Math.PI * 0.46;
 
         const flash = new THREE.PointLight(0xffd27c, 0, 3.2, 2);
         flash.position.set(capturePosition.x, 0.58, capturePosition.z);
@@ -1282,7 +1321,9 @@ export class VoxelChessBoard {
                     const retreat = progress > 0.78
                         ? 1 - smooth((progress - 0.78) / 0.22)
                         : 1;
-                    rig.scale.setScalar(Math.max(0.001, grow * retreat));
+                    rig.scale.setScalar(
+                        Math.max(0.001, grow * retreat * rigScale),
+                    );
 
                     const lunge = progress < 0.55
                         ? smooth(progress / 0.55) * 0.72
@@ -1309,19 +1350,19 @@ export class VoxelChessBoard {
                         try {
                             onImpact?.();
                         } catch {
-                            // Sound is optional; the visual strike still completes.
+                            // Sound is optional; the strike still completes.
                         }
                     }
 
                     if (progress >= 0.5) {
-                        const collapse = smooth(
-                            Math.min(1, (progress - 0.5) / 0.34),
-                        );
-                        defender.scale.copy(defenderScale).multiplyScalar(
-                            Math.max(0.04, 1 - collapse),
-                        );
-                        defender.rotation.z = (
-                            defenderRotation.z + (collapse * 0.82)
+                        // Tip over, accelerating like something losing its
+                        // balance, and settle without bouncing.
+                        const fall = Math.min(1, (progress - 0.5) / 0.42);
+                        const eased = fall * fall * (3 - (2 * fall));
+                        defender.quaternion.copy(defenderQuaternion);
+                        defender.rotateOnWorldAxis(
+                            toppleAxis,
+                            TOPPLE_ANGLE * eased,
                         );
                         flash.intensity = 18 * Math.max(
                             0,
@@ -1339,8 +1380,9 @@ export class VoxelChessBoard {
             });
         } finally {
             attacker.position.copy(startPosition);
-            defender.scale.copy(defenderScale);
+            defender.quaternion.copy(defenderQuaternion);
             defender.rotation.copy(defenderRotation);
+            defender.position.copy(defenderPosition);
             attacker.remove(rig);
             this.boardGroup.remove(flash);
             rig.userData.bladeMaterial.dispose();

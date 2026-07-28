@@ -1990,26 +1990,33 @@ async function animateCapture(moveUci, capture) {
 
     const attackerType = capture.attacker.toLowerCase();
     const defenderType = capture.piece.toLowerCase();
-    const isPawnDuel = attackerType === 'p' && defenderType === 'p';
-    if (!isPawnDuel || reduceMotion) {
+    if (reduceMotion) {
         playCaptureSound(attackerType);
         return;
     }
 
     const fromSquare = moveUci.slice(0, 2);
     const toSquare = moveUci.slice(2, 4);
+
+    // Every capture on the voxel board is fought out, whichever pieces are
+    // involved. The Classic board keeps its pawn-only duel.
     if (
         selectedBoardMode === 'voxel'
         && voxelBoardAvailable
         && voxelBoard
     ) {
-        const animated = await voxelBoard.animatePawnCapture({
+        const animated = await voxelBoard.animateCapture({
             fromSquare,
             toSquare,
             captureSquare: capture.square,
             onImpact: () => playCaptureSound(attackerType),
         });
         if (!animated) playCaptureSound(attackerType);
+        return;
+    }
+
+    if (attackerType !== 'p' || defenderType !== 'p') {
+        playCaptureSound(attackerType);
         return;
     }
 
