@@ -1,0 +1,9 @@
+{
+  "name": "kingside",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser-side test suite for the Kingside chess interface.",
+  "scripts": {
+    "test": "node --test tests/js/*.test.mjs"
+  }
+}
