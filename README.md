@@ -91,6 +91,16 @@ python app.py
 
 Then open [http://127.0.0.1:5001](http://127.0.0.1:5001).
 
+The server runs with debugging off. If you are working on the code and want
+the reloader and the Werkzeug debugger, opt in explicitly:
+
+```bash
+KINGSIDE_DEBUG=1 python app.py
+```
+
+Only do that on a machine you trust: the debugger runs arbitrary code for
+anyone who can reach the port.
+
 ## Playing with your Codex subscription
 
 Codex SDK mode does not read or require `OPENAI_API_KEY` or

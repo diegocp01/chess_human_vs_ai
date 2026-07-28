@@ -1059,4 +1059,7 @@ def get_capture_details(board: chess.Board, move: chess.Move) -> dict | None:
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    # Debug mode serves the Werkzeug interactive debugger, which executes
+    # arbitrary code for anyone who can reach the port. Opt in through the
+    # environment when developing rather than shipping it on by default.
+    app.run(debug=os.getenv('KINGSIDE_DEBUG') == '1', port=5001)
