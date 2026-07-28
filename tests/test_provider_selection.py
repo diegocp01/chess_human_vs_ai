@@ -1114,5 +1114,62 @@ class GameControlTests(KingsideTestCase):
         self.assertEqual(replayed["move_records"][0]["ply"], 1)
 
 
+class ResumeGameTests(KingsideTestCase):
+    """The contract the browser relies on to recover a match after a reload."""
+
+    def start_trained_game(self):
+        with patch.object(app_module.secrets, "choice", return_value="white"):
+            response = self.client.post(
+                "/api/start-game",
+                json={"ai_provider": "trained", "ai_model": "trained-local"},
+            )
+        self.assertEqual(response.status_code, 200)
+        return response.get_json()["game_state"]
+
+    def test_game_state_reports_inactive_before_any_game(self):
+        app_module.GAME_STATE = {}
+        payload = self.client.get("/api/game-state").get_json()
+        # The client keys off this to decide whether to open the setup modal.
+        self.assertFalse(payload.get("active", False))
+        self.assertIsNone(payload.get("game_id"))
+
+    def test_game_state_returns_the_live_game_for_resuming(self):
+        started = self.start_trained_game()
+        self.client.post("/api/human-move", json={"move": "e2e4"})
+
+        payload = self.client.get("/api/game-state").get_json()
+        self.assertEqual(payload["game_id"], started["game_id"])
+        self.assertEqual(payload["move_history_san"], ["e4"])
+        self.assertEqual(payload["move_history"], ["e2e4"])
+        self.assertFalse(payload["game_over"])
+        # Everything the board needs to redraw itself without replaying moves.
+        for key in ("board", "human_color", "ai_color", "current_turn", "player"):
+            self.assertIn(key, payload)
+
+    def test_game_state_survives_repeated_reads(self):
+        self.start_trained_game()
+        self.client.post("/api/human-move", json={"move": "e2e4"})
+        first = self.client.get("/api/game-state").get_json()
+        second = self.client.get("/api/game-state").get_json()
+        self.assertEqual(first["game_id"], second["game_id"])
+        self.assertEqual(first["move_history"], second["move_history"])
+
+    def test_game_state_reports_the_ai_to_move_after_a_human_move(self):
+        # A reload here would strand the match, so the client re-triggers the
+        # AI when it sees this state.
+        state = self.start_trained_game()
+        self.client.post("/api/human-move", json={"move": "e2e4"})
+        payload = self.client.get("/api/game-state").get_json()
+        self.assertEqual(payload["current_turn"], state["ai_color"])
+
+    def test_finished_game_is_still_reported(self):
+        self.start_trained_game()
+        self.client.post("/api/human-move", json={"move": "e2e4"})
+        self.client.post("/api/resign")
+        payload = self.client.get("/api/game-state").get_json()
+        self.assertTrue(payload["game_over"])
+        self.assertEqual(payload["winner"], "ai")
+
+
 if __name__ == "__main__":
     unittest.main()

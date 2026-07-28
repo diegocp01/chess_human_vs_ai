@@ -185,6 +185,8 @@ npm test
 - Persistent last-move and check highlighting
 - Live AI thinking timer and reasoning notes
 - SAN move history
+- Reloading or reopening the tab resumes the match in progress, including your
+  board choice; if the reload interrupted the opponent's turn, it plays on
 - Timestamped JSON game records saved at match creation and after every move;
   abandoned test games remain explicitly marked as **incomplete**
 - Private mid-game position-memory hints when your current board closely matches
