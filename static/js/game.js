@@ -343,6 +343,11 @@ async function initializeVoxelBoard() {
             container: voxelBoardContainer,
             resetButton: resetVoxelViewButton,
             onSquareSelect: square => handleSquareClick(square),
+            onSquareDrop: (from, to) => handleVoxelDrop(from, to),
+            onPieceGrab: square => {
+                if (selectedSquare !== square) selectPiece(square);
+            },
+            canDragSquare: square => isHumanPieceSquare(square),
         });
         voxelBoardAvailable = true;
         voxelBoardShell?.classList.remove('webgl-error');
@@ -1492,6 +1497,29 @@ function armClickSuppression() {
     suppressBoardClickTimer = window.setTimeout(() => {
         suppressBoardClick = false;
     }, 250);
+}
+
+function isHumanPieceSquare(square) {
+    if (!gameState || gameState.game_over || isWaitingForAI || isMoveAnimating) return false;
+    if (gameState.current_turn !== gameState.human_color) return false;
+    return gameState.board[square]?.color === gameState.human_color;
+}
+
+// Drop handler for the 3D board. The 2D board resolves the move inline because
+// it owns the pointer sequence; here the voxel board reports the drop instead.
+async function handleVoxelDrop(fromSquare, toSquare) {
+    if (selectedSquare !== fromSquare) {
+        await selectPiece(fromSquare);
+    } else if (legalMovesPromise) {
+        try {
+            await legalMovesPromise;
+        } catch {
+            // fetchLegalMovesFromSquare already reported the failure.
+        }
+    }
+    if (selectedSquare !== fromSquare) return;
+    // An illegal drop leaves the piece selected so a click can still move it.
+    tryMoveTo(toSquare);
 }
 
 function handleBoardPointerDown(event) {

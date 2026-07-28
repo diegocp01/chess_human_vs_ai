@@ -133,7 +133,9 @@ Restart the app after changing `.env`, then select **OpenAI — API key** or
 - Local, non-AI text-to-speech commentator with deterministic move and position narration
 - Responsive 3D board for desktop and mobile, with a selectable Classic board
   and automatic 2D fallback if WebGL fails or keyboard board navigation begins
-- Drag a piece to its destination, or click the piece and then the square
+- Drag a piece to its destination on either board, or click the piece and then
+  the square; dragging a voxel piece lifts it and orbiting is suspended
+- Deep walnut board palette shared by the Classic and Voxel boards
 - Captured-material rails showing each side's takes and the point advantage
 - Board sized to the viewport height so a full match fits without scrolling
 - Legal destination and capture indicators

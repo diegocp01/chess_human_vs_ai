@@ -20,10 +20,12 @@
     --danger: #ff7373;
     --danger-soft: rgba(255, 115, 115, 0.14);
     --blue: #7ca8ff;
-    --board-light: #f0d9b5;
-    --board-light-alt: #e6c99d;
-    --board-dark: #b58863;
-    --board-dark-alt: #9f6f4d;
+    /* Deep walnut, so the board sits inside the dark shell instead of glaring
+       out of it. The 3D board mirrors these in voxel-board.js. */
+    --board-light: #c8a274;
+    --board-light-alt: #b68f63;
+    --board-dark: #6d452a;
+    --board-dark-alt: #593722;
     --board-selection: rgba(255, 226, 112, 0.68);
     --board-legal: #d6a348;
     --board-last: rgba(247, 205, 98, 0.48);
@@ -1489,7 +1491,8 @@ a:focus-visible {
     touch-action: none;
 }
 
-.voxel-board:active {
+.voxel-board:active,
+.voxel-board.board-dragging {
     cursor: grabbing;
 }
 
