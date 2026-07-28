@@ -101,6 +101,37 @@
         return rows;
     }
 
+    // Expands the placement field of a FEN into the same square map the server
+    // sends for the live board, so a historic position can be drawn by the
+    // ordinary board code. Returns null for anything unparseable.
+    function fenToBoard(fen) {
+        if (typeof fen !== 'string' || !fen.trim()) return null;
+        const rows = fen.trim().split(/\s+/)[0].split('/');
+        if (rows.length !== 8) return null;
+
+        const board = {};
+        for (let rowIndex = 0; rowIndex < 8; rowIndex += 1) {
+            const rank = 7 - rowIndex; // A FEN starts at rank 8.
+            let file = 0;
+            for (const symbol of rows[rowIndex]) {
+                if (symbol >= '1' && symbol <= '8') {
+                    file += Number(symbol);
+                } else if ('prnbqkPRNBQK'.includes(symbol)) {
+                    if (file > 7) return null;
+                    board[squareName(file, rank)] = {
+                        piece: symbol,
+                        color: symbol === symbol.toUpperCase() ? 'white' : 'black',
+                    };
+                    file += 1;
+                } else {
+                    return null;
+                }
+            }
+            if (file !== 8) return null;
+        }
+        return board;
+    }
+
     return {
         PIECE_VALUES,
         CAPTURE_GLYPHS,
@@ -112,5 +143,6 @@
         isLightSquare,
         boardLayout,
         pairMoves,
+        fenToBoard,
     };
 }));

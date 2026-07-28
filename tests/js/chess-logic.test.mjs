@@ -12,8 +12,11 @@ const {
     isLightSquare,
     boardLayout,
     pairMoves,
+    fenToBoard,
     CAPTURE_ORDER,
 } = logic;
+
+const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 // Builds the board map the server sends: { e4: { piece: 'P', color: 'white' } }.
 function boardFrom(spec) {
@@ -175,4 +178,44 @@ test('pairMoves: marks only the final row as latest', () => {
 test('pairMoves: handles an empty or missing list', () => {
     assert.deepEqual(pairMoves([]), []);
     assert.deepEqual(pairMoves(undefined), []);
+});
+
+test('fenToBoard: expands the starting position to 32 pieces', () => {
+    const board = fenToBoard(START_FEN);
+    assert.equal(Object.keys(board).length, 32);
+    assert.deepEqual(board.e1, { piece: 'K', color: 'white' });
+    assert.deepEqual(board.e8, { piece: 'k', color: 'black' });
+    assert.deepEqual(board.a2, { piece: 'P', color: 'white' });
+    assert.deepEqual(board.h7, { piece: 'p', color: 'black' });
+    assert.equal(board.e4, undefined, 'empty squares are absent');
+});
+
+test('fenToBoard: places pieces on the right rank after a move', () => {
+    const board = fenToBoard('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1');
+    assert.deepEqual(board.e4, { piece: 'P', color: 'white' });
+    assert.equal(board.e2, undefined, 'the pawn left e2');
+});
+
+test('fenToBoard: round-trips through the material counter', () => {
+    // A position where black has lost a knight is read the same way whether it
+    // arrives as a live board or as a historic FEN.
+    const board = fenToBoard('r1bqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+    const loss = capturedMaterial(board);
+    assert.equal(loss.black.taken.n, 1);
+    assert.equal(loss.white.points, 0);
+});
+
+test('fenToBoard: accepts a bare placement field', () => {
+    const board = fenToBoard('8/8/8/8/8/8/8/K6k');
+    assert.equal(Object.keys(board).length, 2);
+    assert.deepEqual(board.a1, { piece: 'K', color: 'white' });
+    assert.deepEqual(board.h1, { piece: 'k', color: 'black' });
+});
+
+test('fenToBoard: rejects malformed input instead of throwing', () => {
+    assert.equal(fenToBoard(''), null);
+    assert.equal(fenToBoard(undefined), null);
+    assert.equal(fenToBoard('too/few/rows'), null, 'needs eight ranks');
+    assert.equal(fenToBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN'), null, 'short rank');
+    assert.equal(fenToBoard('xnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'), null, 'bad symbol');
 });
