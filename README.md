@@ -144,6 +144,23 @@ ANTHROPIC_API_KEY=your_anthropic_api_key
 Restart the app after changing `.env`, then select **OpenAI — API key** or
 **Anthropic — API key** on the match setup screen.
 
+## Running the tests
+
+The Python suite covers the server, provider selection, game records, and
+ratings:
+
+```bash
+python -m unittest discover -s tests
+```
+
+The browser suite covers the board logic in `static/js/chess-logic.js` —
+captured-material counting, board orientation, and notation pairing. It uses
+Node's built-in test runner, so it needs no dependencies:
+
+```bash
+npm test
+```
+
 ## Game experience
 
 - Fully reconstructed 3D voxel chess set rendered locally with WebGL

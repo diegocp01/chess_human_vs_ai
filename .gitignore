@@ -24,3 +24,6 @@ output/
 .playwright-cli/
 .playwright-mcp/
 .claude/worktrees/
+
+# node
+node_modules/

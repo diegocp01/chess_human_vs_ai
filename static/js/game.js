@@ -1249,15 +1249,8 @@ async function startGame() {
 
 function renderBoard() {
     chessBoard.innerHTML = '';
-    const humanIsBlack = gameState && gameState.human_color === 'black';
-    const ranks = humanIsBlack
-        ? [0, 1, 2, 3, 4, 5, 6, 7]
-        : [7, 6, 5, 4, 3, 2, 1, 0];
-    const files = humanIsBlack
-        ? [7, 6, 5, 4, 3, 2, 1, 0]
-        : [0, 1, 2, 3, 4, 5, 6, 7];
-    const bottomRank = humanIsBlack ? 7 : 0;
-    const leftFile = humanIsBlack ? 7 : 0;
+    const humanIsBlack = Boolean(gameState && gameState.human_color === 'black');
+    const { ranks, files, bottomRank, leftFile } = boardLayout(humanIsBlack);
     chessBoard.setAttribute(
         'aria-label',
         `Chessboard from ${humanIsBlack ? 'Black' : 'White'}'s perspective`
@@ -1266,8 +1259,8 @@ function renderBoard() {
     for (const rank of ranks) {
         for (const file of files) {
             const square = document.createElement('button');
-            const squareName = String.fromCharCode(97 + file) + (rank + 1);
-            const isLight = (file + rank) % 2 === 1;
+            const squareName = squareNameFor(file, rank);
+            const isLight = isLightSquare(file, rank);
 
             square.className = `square ${isLight ? 'light' : 'dark'}`;
             square.type = 'button';
@@ -1360,38 +1353,22 @@ function updateHighlights() {
     updateVoxelHighlights();
 }
 
-const PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9 };
-const CAPTURE_GLYPHS = { q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
-const CAPTURE_ORDER = ['q', 'r', 'b', 'n', 'p'];
+const {
+    CAPTURE_GLYPHS,
+    CAPTURE_ORDER,
+    capturedMaterial,
+    boardLayout,
+    squareName: squareNameFor,
+    isLightSquare,
+    pairMoves,
+} = window.KingsideLogic;
 
 // Shows each side's captured material and the current point advantage in the
-// player rails, derived by comparing the live board against a full piece set.
+// player rails. The counting itself lives in chess-logic.js.
 function renderCapturedPieces() {
     if (!railAiCapturesEl || !railHumanCapturesEl || !gameState) return;
 
-    const remaining = {
-        white: { p: 0, n: 0, b: 0, r: 0, q: 0 },
-        black: { p: 0, n: 0, b: 0, r: 0, q: 0 },
-    };
-    Object.values(gameState.board).forEach(({ piece, color }) => {
-        const type = piece.toLowerCase();
-        if (type in remaining[color]) remaining[color][type] += 1;
-    });
-
-    const initial = { p: 8, n: 2, b: 2, r: 2, q: 1 };
-    const captured = color => {
-        const taken = {};
-        let points = 0;
-        CAPTURE_ORDER.forEach(type => {
-            // Promotions can leave extra pieces on the board; never go negative.
-            taken[type] = Math.max(0, initial[type] - remaining[color][type]);
-            points += taken[type] * PIECE_VALUES[type];
-        });
-        return { taken, points };
-    };
-
-    const whiteLoss = captured('white');
-    const blackLoss = captured('black');
+    const { white: whiteLoss, black: blackLoss } = capturedMaterial(gameState.board);
     const renderRail = (el, loss, capturedColor, advantage) => {
         const glyphs = CAPTURE_ORDER.flatMap(type => (
             Array.from({ length: loss.taken[type] }, () => (
@@ -2670,21 +2647,12 @@ function updateMoveHistory() {
 
     const moves = gameState.move_history_san;
     moveCountEl.textContent = `${moves.length} ply`;
-    let html = '';
 
-    for (let i = 0; i < moves.length; i += 2) {
-        const moveNum = Math.floor(i / 2) + 1;
-        const whiteMove = moves[i];
-        const blackMove = moves[i + 1] || '';
-
-        const isLatest = i + 2 >= moves.length ? ' latest-row' : '';
-        html += `<div class="move-row${isLatest}">
-            <span class="move-num">${moveNum}.</span>
-            <span class="white-move">${whiteMove}</span>
-            <span class="black-move">${blackMove}</span>
-        </div>`;
-    }
-
-    moveHistoryEl.innerHTML = html;
+    moveHistoryEl.innerHTML = pairMoves(moves).map(row => `
+        <div class="move-row${row.isLatest ? ' latest-row' : ''}">
+            <span class="move-num">${row.number}.</span>
+            <span class="white-move">${row.white}</span>
+            <span class="black-move">${row.black}</span>
+        </div>`).join('');
     moveHistoryEl.scrollTop = moveHistoryEl.scrollHeight;
 }
