@@ -255,14 +255,34 @@
                                 <span class="eyebrow">Notation</span>
                                 <h3>Move history</h3>
                             </div>
-                            <span id="move-count" class="move-count">0 ply</span>
+                            <div class="history-heading-actions">
+                                <span id="move-count" class="move-count">0 ply</span>
+                                <button
+                                    id="btn-copy-pgn"
+                                    class="btn-copy-pgn"
+                                    type="button"
+                                    disabled
+                                    aria-label="Copy this game as PGN"
+                                    title="Copy this game as PGN"
+                                >
+                                    <span class="material-symbols-rounded" aria-hidden="true">content_copy</span>
+                                    <span id="copy-pgn-label">PGN</span>
+                                </button>
+                            </div>
                         </div>
                         <div class="history-columns" aria-hidden="true">
                             <span>#</span>
                             <span>White</span>
                             <span>Black</span>
                         </div>
-                        <div id="move-history" class="move-history">
+                        <label class="visually-hidden" for="pgn-fallback">Game PGN</label>
+                        <textarea
+                            id="pgn-fallback"
+                            class="pgn-fallback hidden"
+                            readonly
+                            rows="4"
+                        ></textarea>
+                        <div id="move-history" class="move-history"
                             <div class="history-empty">
                                 <span aria-hidden="true">&#9816;</span>
                                 <p>Your match notation will appear here.</p>

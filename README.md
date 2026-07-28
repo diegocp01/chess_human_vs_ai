@@ -189,7 +189,8 @@ npm test
 - Live AI thinking timer and reasoning notes
 - If a provider call fails, the reason is shown with a control to ask the
   opponent again, so a rate limit or dropped connection does not end the match
-- SAN move history
+- SAN move history, with a control to copy the game as PGN for import into
+  Lichess, chess.com, or any analysis board
 - Reloading or reopening the tab resumes the match in progress, including your
   board choice; if the reload interrupted the opponent's turn, it plays on
 - Timestamped JSON game records saved at match creation and after every move;

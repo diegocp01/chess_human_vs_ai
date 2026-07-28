@@ -1171,5 +1171,110 @@ class ResumeGameTests(KingsideTestCase):
         self.assertEqual(payload["winner"], "ai")
 
 
+class PgnExportTests(KingsideTestCase):
+    """The PGN has to import cleanly into an external analysis board."""
+
+    def start_trained_game(self, human_color="white"):
+        with patch.object(app_module.secrets, "choice", return_value=human_color):
+            response = self.client.post(
+                "/api/start-game",
+                json={"ai_provider": "trained", "ai_model": "trained-local"},
+            )
+        self.assertEqual(response.status_code, 200)
+        return response.get_json()["game_state"]
+
+    def headers_from(self, pgn):
+        headers = {}
+        for line in pgn.splitlines():
+            if line.startswith("[") and '"' in line:
+                key = line[1:].split(" ", 1)[0]
+                headers[key] = line.split('"')[1]
+        return headers
+
+    def test_pgn_is_exposed_with_the_moves_played(self):
+        self.start_trained_game()
+        state = self.client.post(
+            "/api/human-move", json={"move": "e2e4"}
+        ).get_json()["game_state"]
+        self.assertIn("pgn", state)
+        self.assertIn("1. e4", state["pgn"])
+
+    def test_pgn_names_the_player_and_the_model(self):
+        self.start_trained_game(human_color="white")
+        state = self.client.post(
+            "/api/human-move", json={"move": "e2e4"}
+        ).get_json()["game_state"]
+        headers = self.headers_from(state["pgn"])
+        self.assertEqual(headers["White"], "Test Player")
+        self.assertEqual(headers["Black"], "Trained AI Default")
+        self.assertEqual(headers["Event"], "Kingside local match")
+
+    def test_pgn_swaps_the_names_when_you_play_black(self):
+        self.start_trained_game(human_color="black")
+        state = self.client.get("/api/game-state").get_json()
+        headers = self.headers_from(state["pgn"])
+        self.assertEqual(headers["White"], "Trained AI Default")
+        self.assertEqual(headers["Black"], "Test Player")
+
+    def test_resigned_game_scores_as_a_loss_not_an_unfinished_game(self):
+        # board.result() cannot see a resignation, so without deriving the
+        # score from the recorded winner this exports as '*' and imports
+        # elsewhere as an abandoned game.
+        self.start_trained_game(human_color="white")
+        self.client.post("/api/human-move", json={"move": "e2e4"})
+        state = self.client.post("/api/resign").get_json()["game_state"]
+
+        headers = self.headers_from(state["pgn"])
+        self.assertEqual(headers["Result"], "0-1")
+        self.assertNotEqual(headers["Result"], "*")
+        self.assertIn("resigned", headers["Termination"].lower())
+        self.assertTrue(state["pgn"].rstrip().endswith("0-1"))
+
+    def test_resigning_as_black_scores_the_other_way(self):
+        self.start_trained_game(human_color="black")
+        state = self.client.post("/api/resign").get_json()["game_state"]
+        self.assertEqual(self.headers_from(state["pgn"])["Result"], "1-0")
+
+    def test_game_record_scores_a_resignation_too(self):
+        self.start_trained_game(human_color="white")
+        self.client.post("/api/human-move", json={"move": "e2e4"})
+        self.client.post("/api/resign")
+        # The fixture keeps the model and profile stores in this directory too,
+        # so pick out the file that is actually a game record.
+        records = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in Path(self.log_directory.name).glob("*.json")
+        ]
+        game_records = [record for record in records if "game_id" in record]
+        self.assertEqual(len(game_records), 1)
+        self.assertEqual(game_records[0]["result"]["chess_result"], "0-1")
+
+    def test_unfinished_game_still_reports_an_open_result(self):
+        self.start_trained_game()
+        state = self.client.post(
+            "/api/human-move", json={"move": "e2e4"}
+        ).get_json()["game_state"]
+        self.assertEqual(self.headers_from(state["pgn"])["Result"], "*")
+
+    def test_chess_result_covers_every_ending(self):
+        state = {"game_over": False, "winner": None, "human_color": "white"}
+        self.assertEqual(app_module.chess_result_for(state), "*")
+        for winner, color, expected in [
+            ("human", "white", "1-0"),
+            ("ai", "white", "0-1"),
+            ("human", "black", "0-1"),
+            ("ai", "black", "1-0"),
+            ("draw", "white", "1/2-1/2"),
+            ("draw", "black", "1/2-1/2"),
+        ]:
+            with self.subTest(winner=winner, color=color):
+                self.assertEqual(
+                    app_module.chess_result_for(
+                        {"game_over": True, "winner": winner, "human_color": color}
+                    ),
+                    expected,
+                )
+
+
 if __name__ == "__main__":
     unittest.main()
