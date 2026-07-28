@@ -184,6 +184,8 @@ npm test
 - Legal destination and capture indicators
 - Persistent last-move and check highlighting
 - Live AI thinking timer and reasoning notes
+- If a provider call fails, the reason is shown with a control to ask the
+  opponent again, so a rate limit or dropped connection does not end the match
 - SAN move history
 - Timestamped JSON game records saved at match creation and after every move;
   abandoned test games remain explicitly marked as **incomplete**

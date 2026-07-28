@@ -2229,6 +2229,41 @@ a:focus-visible {
     text-align: center;
 }
 
+/* Offered when a provider call fails and the match is waiting on a move it
+   never received. */
+.btn-retry-ai {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 12px auto 0;
+    min-height: 38px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 115, 115, 0.4);
+    border-radius: 999px;
+    color: #ffc8c8;
+    background: var(--danger-soft);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    transition: border-color 150ms ease, background 150ms ease;
+}
+
+.btn-retry-ai .material-symbols-rounded {
+    font-size: 1rem;
+}
+
+.btn-retry-ai:hover:not(:disabled) {
+    border-color: rgba(255, 115, 115, 0.65);
+    background: rgba(255, 115, 115, 0.18);
+}
+
+.btn-retry-ai:disabled {
+    cursor: progress;
+    opacity: 0.55;
+}
+
 /* Match intelligence */
 .info-section {
     display: flex;
