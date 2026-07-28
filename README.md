@@ -40,14 +40,25 @@ has no passwords: anyone using this copy of the app can select any existing
 username from the dropdown. Authentication can be added later without changing
 the rating history.
 
-Kingside stores profiles in `player_data/profiles.json`, so names, lifetime
-records, and Elo survive app and computer restarts. Both the human profile and
-the exact opponent model have persistent ratings. Completed games use standard
-Elo expectation math with a K-factor of 32, and every game ID can update ratings
-only once.
+Kingside stores profiles in your operating system's permanent per-user
+application-data folder, so names, lifetime records, Elo, game history, and the
+Trained AI model survive app restarts, Git pulls, branches, and worktrees. On
+macOS that folder is:
 
-The profile JSON is local and Git-ignored. Each game log records the selected
-username, starting Elo, result, and final rating change for auditing.
+```text
+~/Library/Application Support/Kingside/
+```
+
+Existing repository-local profiles and history are imported automatically the
+first time this version starts. Set `KINGSIDE_DATA_DIR` before launching if you
+want to use a different permanent location. Both the human profile and the exact
+opponent model have persistent ratings. Completed games use standard Elo
+expectation math with a K-factor of 32, and every game ID can update ratings only
+once.
+
+The profile JSON remains local to your computer and lives outside the Git
+checkout. Each game log records the selected username, starting Elo, result,
+and final rating change for auditing.
 
 ## Start the game
 
@@ -164,9 +175,9 @@ Restart the app after changing `.env`, then select **OpenAI — API key** or
 - Accessible labels, keyboard focus states, and reduced-motion support
 
 Live game state stays in the local Flask process. Every match also gets a
-recoverable JSON record in `game_logs/`, including its date and time, colors,
-opponent provider and model, timestamped UCI/SAN moves, FEN after every ply,
-final PGN, result, and post-game coaching report.
+recoverable JSON record in the permanent `game_logs/` data folder, including
+its date and time, colors, opponent provider and model, timestamped UCI/SAN
+moves, FEN after every ply, final PGN, result, and post-game coaching report.
 
 The end-game coach always uses the signed-in Codex SDK with your ChatGPT
 subscription—no API key—even when the opponent was OpenAI API or Anthropic API.
@@ -174,10 +185,11 @@ It runs once when the game ends, then caches the result in that match’s JSON
 file. If the review is interrupted, the game record remains intact and the UI
 offers a retry.
 
-Every completed game updates `trained_ai/model.json` with the AI-authored moves
-and the final AI-side outcome. Human moves are replayed only to reconstruct each
-position; they are never learned as opponent tendencies. The post-game Codex
-Coach can add richer strategy labels, but a successful Coach run is not required
+Every completed game updates the permanent `trained_ai/model.json` with the
+AI-authored moves and the final AI-side outcome. Human moves are replayed only
+to reconstruct each position; they are never learned as opponent tendencies.
+The post-game Codex Coach can add richer strategy labels, but a successful
+Coach run is not required
 for the game to become training data.
 
 During a **Trained AI** match, no LLM is called. The local policy first checks
